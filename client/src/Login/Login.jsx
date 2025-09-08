@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { FaEnvelope, FaLock, FaPhone, FaEye, FaEyeSlash } from "react-icons/fa";
 
 const Login = () => {
+  const URL = "https://e-commerce-4pcq.onrender.com";
   const [currentPage, setCurrentPage] = useState("login");
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
@@ -71,7 +72,7 @@ const Login = () => {
           phone: formData.phone,
           password: formData.password,
         };
-        const res = await axios.post("http://localhost:5000/auth/", payload);
+        const res = await axios.post(`${URL}/auth/`, payload);
         alert(res.data.message || "Registration successful!");
         setCurrentPage("login");
         setFormData({
@@ -87,13 +88,9 @@ const Login = () => {
           uName: formData.uName,
           password: formData.password,
         };
-        const res = await axios.post(
-          "http://localhost:5000/auth/login",
-          payload,
-          {
-            withCredentials: true,
-          }
-        );
+        const res = await axios.post(`${URL}/auth/login`, payload, {
+          withCredentials: true,
+        });
 
         const accessToken = res.data.accessToken;
         if (!accessToken) {

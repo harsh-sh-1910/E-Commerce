@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 
-const API_URL = "http://localhost:5000";
+const URL = "https://e-commerce-4pcq.onrender.com";
 
 const UserAddress = () => {
   const [addresses, setAddresses] = useState([]);
@@ -20,7 +20,7 @@ const UserAddress = () => {
   // Fetch addresses from backend on component mount
   useEffect(() => {
     axios
-      .get(`${API_URL}/address`, { withCredentials: true })
+      .get(`${URL}/address`, { withCredentials: true })
       .then((res) => setAddresses(res.data.data))
       .catch((err) => console.error(err));
   }, []);
@@ -28,7 +28,7 @@ const UserAddress = () => {
   const setDefaultAddress = async (id) => {
     try {
       await axios.put(
-        `${API_URL}/address/${id}/default`,
+        `${URL}/address/${id}/default`,
         {},
         { withCredentials: true }
       );
@@ -46,7 +46,7 @@ const UserAddress = () => {
 
   const removeAddress = async (id) => {
     try {
-      await axios.delete(`${API_URL}/address/${id}`, {
+      await axios.delete(`${URL}/address/${id}`, {
         withCredentials: true,
       });
       setAddresses(addresses.filter((addr) => addr._id !== id));
@@ -84,7 +84,7 @@ const UserAddress = () => {
 
       const payload = { ...formData, userId }; // include id from token
 
-      const res = await axios.post(`${API_URL}/address`, payload, {
+      const res = await axios.post(`${URL}/address`, payload, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

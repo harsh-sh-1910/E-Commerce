@@ -29,6 +29,7 @@ const defaultStats = {
 };
 
 const Profile = () => {
+  const URL = "https://e-commerce-4pcq.onrender.com";
   const [user, setUser] = useState(null);
   const [stats, setStats] = useState(defaultStats);
   const navigate = useNavigate();
@@ -49,7 +50,7 @@ const Profile = () => {
 
       // Step 2: fetch full user profile from backend
       axios
-        .get(`http://localhost:5000/auth/${decoded.id}`, {
+        .get(`${URL}/auth/${decoded.id}`, {
           headers: {
             Authorization: `Bearer ${token}`, // pass token to verify request
           },

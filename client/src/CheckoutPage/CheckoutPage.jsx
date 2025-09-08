@@ -9,6 +9,7 @@ import {
 } from "../CartUtils/CartUtils";
 
 const CheckoutPage = () => {
+  const URL = "https://e-commerce-4pcq.onrender.com";
   const [cartItems, setCartItems] = useState(() => {
     const items = getLocalStorage("cart") || [];
     return items
@@ -69,7 +70,7 @@ const CheckoutPage = () => {
                   <div className="md:col-span-5 flex gap-4">
                     <div className="w-20 h-20 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
                       <img
-                        src={`http://localhost:5000/${item.mainImage}`}
+                        src={`${URL}/${item.mainImage}`}
                         alt={item.name}
                         className="w-full h-full object-contain"
                       />

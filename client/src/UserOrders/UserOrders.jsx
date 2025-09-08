@@ -1,6 +1,7 @@
 import React from "react";
 
 const UserOrders = () => {
+  const URL = "https://e-commerce-4pcq.onrender.com";
   const orders = [
     {
       id: "ORD001",

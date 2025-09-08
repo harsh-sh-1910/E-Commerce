@@ -15,6 +15,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 gsap.registerPlugin(ScrollTrigger);
 
 const ShopPage = () => {
+  const URL = "https://e-commerce-4pcq.onrender.com";
   const [wishlistMsg, setWishlistMsg] = useState("");
   const [animateId, setAnimateId] = useState(null);
   const [products, setProducts] = useState([]);
@@ -62,7 +63,7 @@ const ShopPage = () => {
       _id: product._id,
       title: product.name,
       price: product.pricing?.salePrice,
-      image: `http://localhost:5000/${product.mainImage}`,
+      image: `${URL}/${product.mainImage}`,
     };
 
     const existingWishlist = JSON.parse(localStorage.getItem("wishlist")) || [];
@@ -98,7 +99,7 @@ const ShopPage = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/product/");
+        const res = await axios.get(`${URL}/product/`);
         setProducts(res.data);
         console.log(res.data);
       } catch (error) {
@@ -135,7 +136,7 @@ const ShopPage = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/category/");
+        const res = await axios.get(`${URL}/category/`);
         let backendCategories = res.data;
         console.log(res.data);
 
@@ -408,7 +409,7 @@ const ShopPage = () => {
                     <span className="text-sm hover:underline">{cat.tag}</span>
                   ) : (
                     <img
-                      src={`http://localhost:5000/${encodeURI(
+                      src={`${URL}/${encodeURI(
                         cat.image.replaceAll("\\", "/")
                       )}`}
                       alt={cat.label}
@@ -587,16 +588,16 @@ const ShopPage = () => {
                 >
                   <div className="h-[200px] flex items-center justify-center relative group">
                     <img
-                      src={`http://localhost:5000/${item.mainImage}`}
+                      src={`${URL}/${item.mainImage}`}
                       alt={item.name}
                       className="object-contain w-full h-full"
                       onMouseEnter={(e) => {
                         if (item.gallery && item.gallery.length > 0) {
-                          e.currentTarget.src = `http://localhost:5000/${item.gallery[0]}`;
+                          e.currentTarget.src = `${URL}/${item.gallery[0]}`;
                         }
                       }}
                       onMouseLeave={(e) => {
-                        e.currentTarget.src = `http://localhost:5000/${item.mainImage}`;
+                        e.currentTarget.src = `${URL}/${item.mainImage}`;
                       }}
                     />
 
@@ -692,7 +693,7 @@ const ShopPage = () => {
             {/* Product Image */}
             {quickViewProduct?.mainImage && (
               <img
-                src={`http://localhost:5000/${quickViewProduct.mainImage}`}
+                src={`${URL}/${quickViewProduct.mainImage}`}
                 alt={quickViewProduct?.name || "Product"}
                 className="w-full h-64 object-contain rounded-lg mb-4"
               />

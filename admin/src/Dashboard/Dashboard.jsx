@@ -3,6 +3,7 @@ import * as echarts from "echarts";
 import { RiFileList3Fill } from "react-icons/ri";
 
 const Dashboard = () => {
+  const URL = "https://e-commerce-4pcq.onrender.com";
   const chartRef = useRef(null);
 
   useEffect(() => {

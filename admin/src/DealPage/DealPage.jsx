@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 
 const DealPage = () => {
+  const URL = "https://e-commerce-4pcq.onrender.com";
   const [formData, setFormData] = useState({
     productName: "", // This will store the product ID (ObjectId)
     startDateTime: "",
@@ -20,7 +21,7 @@ const DealPage = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/product/");
+        const res = await axios.get(`$URL`);
         setProductOptions(res.data);
       } catch (error) {
         console.error("Error fetching products:", error);
@@ -105,15 +106,11 @@ const DealPage = () => {
         discount: parseFloat(formData.discount),
       };
 
-      const response = await axios.post(
-        "http://localhost:5000/deal/",
-        dealData,
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const response = await axios.post(`${URL}/deal/`, dealData, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
 
       console.log("Response:", response.data);
       setShowSuccess(true);

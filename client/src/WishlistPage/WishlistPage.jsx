@@ -3,6 +3,7 @@ import { getLocalStorage } from "../localStorageUtils/localStorageUtils";
 import { MdDeleteOutline } from "react-icons/md";
 
 const WishlistPage = () => {
+  const URL = "https://e-commerce-4pcq.onrender.com";
   const [wishlistItems, setWishlistItems] = useState(() => {
     const items = getLocalStorage("wishlist") || [];
     return items.map((item) => ({

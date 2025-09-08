@@ -3,6 +3,8 @@ import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 
 const CheckoutFormPage = () => {
+  const URL = "https://e-commerce-4pcq.onrender.com";
+  // const URL="http://localhost:5000"
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -59,8 +61,7 @@ const CheckoutFormPage = () => {
   const handleRazorpayPayment = async () => {
     const amount = total;
 
-    // Create Razorpay order
-    const { data: order } = await axios.post("http://localhost:5000/payment/", {
+    const { data: order } = await axios.post(`${URL}/payment/`, {
       amount,
     });
 
@@ -85,7 +86,7 @@ const CheckoutFormPage = () => {
       order_id: order.id,
       handler: async function (response) {
         // ✅ Only verify payment & store order in DB
-        const res = await axios.post("http://localhost:5000/payment/verify", {
+        const res = await axios.post(`${URL}/payment/verify`, {
           razorpay_order_id: response.razorpay_order_id,
           razorpay_payment_id: response.razorpay_payment_id,
           razorpay_signature: response.razorpay_signature,
@@ -134,7 +135,7 @@ const CheckoutFormPage = () => {
 
           try {
             const orderResponse = await axios.post(
-              "http://localhost:5000/order/",
+              `${URL}/order/`,
               orderDataForDB
             );
             console.log("Order stored:", orderResponse.data);

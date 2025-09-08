@@ -31,6 +31,7 @@ import {
 } from "../CartUtils/CartUtils";
 
 const Header = () => {
+  const URL = "https://e-commerce-4pcq.onrender.com";
   const navigate = useNavigate();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [showAll, setShowAll] = useState(false);
@@ -161,7 +162,7 @@ const Header = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/category");
+        const res = await axios.get(`${URL}/category`);
         setCategories(res.data); // Expecting: [{ name, image, count, ... }]
       } catch (err) {
         console.error("Error fetching categories:", err);
@@ -352,7 +353,7 @@ const Header = () => {
 
                           <div className="w-20">
                             <img
-                              src={`http://localhost:5000/${product.mainImage}`}
+                              src={`${URL}/${product.mainImage}`}
                               alt={product.name}
                             />
                           </div>

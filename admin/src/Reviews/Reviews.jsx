@@ -7,12 +7,12 @@ const Reviews = () => {
   const [searchTerm, setSearchTerm] = useState("");
 
   // Base URL
-  const API_URL = "http://localhost:5000/review";
-
+  // const API_URL = "http://localhost:5000";
+  const URL = "https://e-commerce-4pcq.onrender.com";
   // Fetch all reviews
   const fetchReviews = async () => {
     try {
-      const res = await axios.get(API_URL);
+      const res = await axios.get(`${URL}/review`);
       setReviews(res.data);
     } catch (err) {
       console.error("Error fetching reviews:", err);
@@ -28,7 +28,7 @@ const Reviews = () => {
     if (!window.confirm("Are you sure you want to delete this review?")) return;
 
     try {
-      await axios.delete(`${API_URL}/${id}`);
+      await axios.delete(`${URL}/${id}`);
       setReviews((prev) => prev.filter((r) => r._id !== id));
     } catch (err) {
       console.error("Error deleting review:", err);

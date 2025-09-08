@@ -26,6 +26,7 @@ const navItems = [
 ];
 
 const Sidebar = () => {
+  const URL = "https://e-commerce-4pcq.onrender.com";
   const navigate = useNavigate();
 
   const handleLogout = () => {

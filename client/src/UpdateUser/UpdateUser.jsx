@@ -3,6 +3,7 @@ import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 
 const UpdateUser = () => {
+  const URL = "https://e-commerce-4pcq.onrender.com";
   const [formData, setFormData] = useState(null);
   const [initialData, setInitialData] = useState(null);
   const [messages, setMessages] = useState([]);
@@ -26,7 +27,7 @@ const UpdateUser = () => {
   // --- Fetch user details by ID
   const fetchUser = async (id) => {
     try {
-      const res = await axios.get(`http://localhost:5000/auth/${id}`, {
+      const res = await axios.get(`${URL}/auth/${id}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
@@ -81,7 +82,7 @@ const UpdateUser = () => {
 
     if (updatedFields.length > 0) {
       try {
-        await axios.put(`http://localhost:5000/auth/${userId}`, dataToSubmit, {
+        await axios.put(`${URL}/auth/${userId}`, dataToSubmit, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },

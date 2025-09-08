@@ -12,6 +12,7 @@ import dayjs from "dayjs";
 import { LocationContext } from "../LocationContent/LocationContent";
 
 const SingleProduct = () => {
+  const URL = "https://e-commerce-4pcq.onrender.com";
   const token = localStorage.getItem("accessToken");
   const decodedUser = token ? jwtDecode(token) : null;
   const [selectedImage, setSelectedImage] = useState(0);
@@ -82,10 +83,7 @@ const SingleProduct = () => {
     console.log(payload);
 
     try {
-      const response = await axios.post(
-        "http://localhost:5000/review/",
-        payload
-      );
+      const response = await axios.post(`${URL}/review/`, payload);
 
       if (response.status === 201) {
         const newDate = new Date().toISOString().split("T")[0];
@@ -161,7 +159,7 @@ const SingleProduct = () => {
       _id: product._id,
       title: product.name,
       price: product.pricing?.salePrice,
-      image: `http://localhost:5000/${product.mainImage}`,
+      image: `${URL}/${product.mainImage}`,
     };
 
     const existingWishlist = JSON.parse(localStorage.getItem("wishlist")) || [];
@@ -200,7 +198,7 @@ const SingleProduct = () => {
 
   useEffect(() => {
     const getProduct = async () => {
-      const response = await fetch(`http://localhost:5000/product/${slug}`);
+      const response = await fetch(`${URL}/product/${slug}`);
       const data = await response.json();
 
       setProduct(data);
@@ -229,9 +227,7 @@ const SingleProduct = () => {
       try {
         if (!product?._id) return;
 
-        const res = await axios.get(
-          `http://localhost:5000/review/${product._id}`
-        );
+        const res = await axios.get(`${URL}/review/${product._id}`);
         setReview(res.data);
       } catch (err) {
         console.error(
@@ -266,7 +262,7 @@ const SingleProduct = () => {
                       onClick={() => setSelectedImage(index)}
                     >
                       <img
-                        src={`http://localhost:5000/${thumb}`}
+                        src={`${URL}/${thumb}`}
                         alt={`Product view ${index + 1}`}
                         className="w-full h-full object-contain object-top"
                       />
@@ -284,7 +280,7 @@ const SingleProduct = () => {
               >
                 <img
                   ref={imgRef}
-                  src={`http://localhost:5000/${
+                  src={`${URL}/${
                     [...productImages, ...variation[0].options[index].images][
                       selectedImage
                     ]
@@ -574,7 +570,7 @@ const SingleProduct = () => {
               <span
                 className=" absolute right-0 top-0 w-[50%] h-[80vh] border border-gray-200 rounded-xl overflow-hidden z-50 bg-white shadow-xl hidden lg:block"
                 style={{
-                  backgroundImage: `url('http://localhost:5000/${
+                  backgroundImage: `url('${URL}/${
                     [...productImages, ...variation[0].options[index].images][
                       selectedImage
                     ]

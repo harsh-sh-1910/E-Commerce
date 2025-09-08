@@ -32,6 +32,7 @@ import { IoEye } from "react-icons/io5";
 import { FaArrowRightLong } from "react-icons/fa6";
 
 const MainPage = () => {
+  const URL = "https://e-commerce-4pcq.onrender.com";
   const [deals, setDeals] = useState([]);
   const [categories, setCategories] = useState([]);
   const newArrivals = [
@@ -236,7 +237,7 @@ const MainPage = () => {
   useEffect(() => {
     const fetchDeals = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/deal");
+        const res = await axios.get(`${URL}/deal`);
         const updatedDeals = res.data.map((deal) => {
           const product = deal.productName;
           const discountPercent = deal.discount;
@@ -353,7 +354,7 @@ const MainPage = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/category/");
+        const res = await axios.get(`${URL}/category/`);
         setCategories(res.data);
         console.log(res.data);
       } catch (err) {
@@ -561,9 +562,7 @@ const MainPage = () => {
                 className="flex flex-col items-center bg-gray-50 shadow-sm rounded-xl p-6 min-w-[160px] hover:shadow-md transition"
               >
                 <img
-                  src={`http://localhost:5000/${encodeURI(
-                    cat.image.replaceAll("\\", "/")
-                  )}`}
+                  src={`${URL}/${encodeURI(cat.image.replaceAll("\\", "/"))}`}
                   alt={cat.title || cat.name}
                   className="w-60 h-50 object-contain mb-4 hover:scale-110 transition-transform"
                 />
@@ -785,7 +784,7 @@ const MainPage = () => {
                   {/* Product Image */}
                   <div className="w-full h-[200px] relative rounded-lg group cursor-pointer">
                     <img
-                      src={`http://localhost:5000/${item.image}`}
+                      src={`${URL}/${item.image}`}
                       alt={item.title}
                       className="w-full h-full object-contain rounded-lg"
                     />

@@ -17,7 +17,8 @@ const INITIAL_DATA = {
   ],
 };
 
-const API = "http://localhost:5000";
+// const API = "http://localhost:5000";
+const URL = "https://e-commerce-4pcq.onrender.com";
 
 const AddProduct = () => {
   const [productName, setProductName] = useState("");
@@ -111,7 +112,7 @@ const AddProduct = () => {
   // Fetch all categories
   const getCategory = async () => {
     try {
-      const response = await axios.get(`${API}/category`);
+      const response = await axios.get(`${URL}/category`);
       setCategories(response.data);
     } catch (error) {
       console.log(error);
@@ -122,7 +123,7 @@ const AddProduct = () => {
   // const handleAddCategory = async () => {
   //   if (newCategory.trim()) {
   //     try {
-  //       await axios.post(`${API}/category`, {
+  //       await axios.post(`${URL}/category`, {
   //         name: newCategory,
   //         parentId: null,
   //       });
@@ -228,7 +229,7 @@ const AddProduct = () => {
       }
 
       // --- Send request
-      await axios.post(`${API}/product`, form, {
+      await axios.post(`${URL}/product`, form, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 

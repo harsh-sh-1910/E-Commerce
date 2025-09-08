@@ -9,12 +9,12 @@ const Category = () => {
   const [expandedCategories, setExpandedCategories] = useState(new Set());
   const [loading, setLoading] = useState(false);
 
-  const BASE_URL = "http://localhost:5000";
-
+  // const BASE_URL = "http://localhost:5000";
+  const URL = "https://e-commerce-4pcq.onrender.com";
   // 🟡 Fetch categories
   const fetchCategories = async () => {
     try {
-      const res = await axios.get(`${BASE_URL}/category`);
+      const res = await axios.get(`${URL}/category`);
       setCategories(res.data);
       console.log(res.data);
     } catch (error) {
@@ -42,7 +42,7 @@ const Category = () => {
 
     try {
       setLoading(true);
-      const res = await axios.post(`${BASE_URL}/category`, formData, {
+      const res = await axios.post(`${URL}/category`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
@@ -64,7 +64,7 @@ const Category = () => {
     if (!updatedName) return;
 
     try {
-      await axios.patch(`${BASE_URL}/category/${id}`, { name: updatedName });
+      await axios.patch(`${URL}/category/${id}`, { name: updatedName });
       fetchCategories();
     } catch (err) {
       console.error("Update error", err);
@@ -79,7 +79,7 @@ const Category = () => {
     if (!confirm) return;
 
     try {
-      await axios.delete(`${BASE_URL}/category/${id}`);
+      await axios.delete(`${URL}/category/${id}`);
       fetchCategories();
     } catch (err) {
       console.error("Delete error", err);
@@ -102,7 +102,7 @@ const Category = () => {
             )}
             {category.image && (
               <img
-                src={`${BASE_URL}/${encodeURI(
+                src={`${URL}/${encodeURI(
                   category.image.replaceAll("\\", "/")
                 )}`}
                 className="w-10 h-10 object-cover rounded"
