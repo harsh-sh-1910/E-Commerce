@@ -1,0 +1,144 @@
+@import "tailwindcss";
+
+html,
+body {
+  width: 100%;
+  overflow-x: hidden;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+input[type="range"].custom-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 0px;
+  height: 0px;
+  background: transparent;
+  border: none;
+}
+.zoom-hover {
+  background-size: 100%;
+  background-position: center;
+  background-repeat: no-repeat;
+  transition: background-size 0.5s ease;
+}
+
+.zoom-hover:hover {
+  background-size: 110%;
+}
+.mirror-animate {
+  position: relative;
+  overflow: hidden;
+}
+
+.mirror-animate::before {
+  content: "";
+  position: absolute;
+  top: -100%;
+  right: -100%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0) 40%,
+    rgba(255, 255, 255, 0.4) 50%,
+    rgba(255, 255, 255, 0) 60%
+  );
+  transform: translate(100%, -100%);
+  pointer-events: none;
+  opacity: 1;
+}
+
+.animate-sweep-forward::before {
+  animation: sweep 1s ease-in-out forwards;
+}
+
+.animate-sweep-reverse::before {
+  animation: sweep 1s ease-in-out reverse forwards;
+}
+
+@keyframes sweep {
+  0% {
+    transform: translate(100%, -100%) rotate(45deg);
+  }
+  100% {
+    transform: translate(-100%, 100%) rotate(45deg);
+  }
+}
+.inner-border-frame {
+  position: relative;
+  overflow: hidden;
+  border-radius: 0.75rem; /* Tailwind's rounded-xl */
+}
+
+.inner-border-frame::before {
+  content: "";
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  right: 8px;
+  bottom: 8px;
+  border: 2px solid white;
+  border-radius: inherit;
+  opacity: 0;
+  transform: scale(1.2);
+  transition: transform 0.5s ease-in-out, opacity 0.3s ease-in-out;
+  pointer-events: none;
+}
+
+.inner-border-frame:hover::before {
+  transform: scale(1);
+  opacity: 1;
+}
+/* Positioning for placeholder overlay */
+.fake-placeholder {
+  position: absolute;
+  left: 1rem; /* same as input padding */
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  overflow: hidden;
+  height: 1em;
+  line-height: 1em;
+  color: #9ca3af; /* Tailwind gray-400 */
+  font-size: 0.875rem; /* Tailwind text-sm */
+}
+
+/* Slide-down animation */
+@keyframes slideDown {
+  0% {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.slide-animation {
+  animation: slideDown 0.4s ease-out;
+  position: absolute;
+  width: 100%;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.animate-slideIn {
+  animation: slideIn 0.3s ease-out;
+}
