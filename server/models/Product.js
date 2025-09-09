@@ -65,12 +65,12 @@ const productSchema = new mongoose.Schema(
 
     variations: [
       {
-        attribute: { type: String, required: true },
+        attribute: { type: String },
         options: [
           {
-            value: { type: String, required: true },
+            value: { type: String },
             images: [{ type: String }],
-            price: { type: Number, required: true },
+            price: { type: Number },
             productName: { type: String, trim: true },
             stock: { type: Number, default: 0 },
             sku: { type: String, trim: true },

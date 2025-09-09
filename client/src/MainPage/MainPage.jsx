@@ -33,6 +33,7 @@ import { FaArrowRightLong } from "react-icons/fa6";
 
 const MainPage = () => {
   const URL = "https://e-commerce-4pcq.onrender.com";
+  // const URL = "http://localhost:5000";
   const [deals, setDeals] = useState([]);
   const [categories, setCategories] = useState([]);
   const newArrivals = [

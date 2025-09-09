@@ -6,6 +6,7 @@ import {
   FaTelegramPlane,
 } from "react-icons/fa";
 import { FaXTwitter } from "react-icons/fa6";
+import { Link } from "react-router-dom";
 
 const Footer = () => {
   return (
@@ -13,8 +14,11 @@ const Footer = () => {
       <div className="max-w-screen-xl mx-auto grid grid-cols-1 md:grid-cols-5 gap-8 relative">
         {/* Column 1: Logo and Contact Info */}
         <div className="space-y-4">
-          <img src="/Logo-footer.svg" alt="" className="bg-black" />
-          <p className="text-gray-400">Call us 24/7</p>
+          <Link to="/">
+            {" "}
+            <img src="/Logo-footer.svg" className="bg-black" />
+          </Link>
+          <p className="text-gray-400 mt-2">Call us 24/7</p>
           <h2 className="text-xl font-semibold">+1 1800 9797 6000</h2>
           <p className="text-gray-400">
             215 Western Plaza, Melbourne, Australia
@@ -36,76 +40,86 @@ const Footer = () => {
         {/* Column 2: Our Story */}
         <div>
           <h3 className="font-bold text-gray-400 mb-5 text-2xl">Our Story</h3>
-          <ul className="space-y-2 text-white ">
-            <li className="hover:text-teal-500 hover:underline">
+          <div className="flex flex-col gap-2 text-white ">
+            <Link to="/about" className="hover:text-teal-500 hover:underline">
               Company Profile
-            </li>
-            <li className="hover:text-teal-500 hover:underline">
+            </Link>
+            <Link to="/about" className="hover:text-teal-500 hover:underline">
               Our Facility
-            </li>
-            <li className="hover:text-teal-500 hover:underline">
+            </Link>
+            <Link to="/about" className="hover:text-teal-500 hover:underline">
               Commitment To Quality
-            </li>
-            <li className="hover:text-teal-500 hover:underline">
+            </Link>
+            <Link to="/about" className="hover:text-teal-500 hover:underline">
               Contract Manufacturing
-            </li>
-            <li className="hover:text-teal-500 hover:underline">Our Awards</li>
-          </ul>
+            </Link>
+            <Link to="/about" className="hover:text-teal-500 hover:underline">
+              Our Awards
+            </Link>
+          </div>
         </div>
 
         {/* Column 3: Categories */}
         <div>
           <h3 className="font-bold text-gray-400 mb-5 text-2xl">Categories</h3>
-          <ul className="space-y-2 text-white">
-            <li className="hover:text-teal-500 hover:underline">Smartphone</li>
-            <li className="hover:text-teal-500 hover:underline">
+          <div className="flex flex-col gap-2 text-white">
+            <Link to="/shop" className="hover:text-teal-500 hover:underline">
+              Smartphone
+            </Link>
+            <Link to="/shop" className="hover:text-teal-500 hover:underline">
               Gaming Laptop
-            </li>
-            <li className="hover:text-teal-500 hover:underline">Smart Home</li>
-            <li className="hover:text-teal-500 hover:underline">
+            </Link>
+            <Link to="/shop" className="hover:text-teal-500 hover:underline">
+              Smart Home
+            </Link>
+            <Link to="/shop" className="hover:text-teal-500 hover:underline">
               Major Appliances
-            </li>
-            <li className="hover:text-teal-500 hover:underline">
+            </Link>
+            <Link to="/shop" className="hover:text-teal-500 hover:underline">
               Technologies
-            </li>
-          </ul>
+            </Link>
+          </div>
         </div>
 
         {/* Column 4: Quick Link */}
         <div>
           <h3 className="font-bold text-gray-400 mb-5 text-2xl">Quick Link</h3>
-          <ul className="space-y-2 text-white">
-            <li className="hover:text-teal-500 hover:underline">Blog</li>
-            <li className="hover:text-teal-500 hover:underline">
+          <div className="flex flex-col gap-2 text-white">
+            <Link to="/blog" className="hover:text-teal-500 hover:underline">
+              Blog
+            </Link>
+            <Link to="/blog" className="hover:text-teal-500 hover:underline">
               Subscription
-            </li>
-            <li className="hover:text-teal-500 hover:underline">
+            </Link>
+            <Link to="/blog" className="hover:text-teal-500 hover:underline">
               Announcements
-            </li>
-            <li className="hover:text-teal-500 hover:underline">FAQ’s</li>
-          </ul>
+            </Link>
+            <Link to="/blog" className="hover:text-teal-500 hover:underline">
+              FAQ’s
+            </Link>
+          </div>
         </div>
 
         {/* Column 5: Contact Us */}
         <div>
-          <h3 className="ffont-bold text-gray-400 mb-5 text-2xl">Contact Us</h3>
-          <ul className="space-y-2 text-white">
-            <li className="hover:text-teal-500 hover:underline">
+          <h3 className="font-bold text-gray-400 mb-5 text-2xl">Contact Us</h3>
+          <div className="flex flex-col gap-2 text-white">
+            <Link to="/contact" className="hover:text-teal-500 hover:underline">
               Become a Seller
-            </li>
-            <li className="hover:text-teal-500 hover:underline">
+            </Link>
+            <Link to="/contact" className="hover:text-teal-500 hover:underline">
               Contract Manufacturing
-            </li>
-            <li className="hover:text-teal-500 hover:underline">
+            </Link>
+            <Link to="/contact" className="hover:text-teal-500 hover:underline">
               Terms & Condition
-            </li>
-            <li className="hover:text-teal-500 hover:underline">
+            </Link>
+            <Link to="/contact" className="hover:text-teal-500 hover:underline">
               Career with us
-            </li>
-            <li className="hover:text-teal-500 hover:underline">
+            </Link>
+            <Link to="/contact" className="hover:text-teal-500 hover:underline">
               Consumer enquiry
-            </li>
-          </ul>
+            </Link>
+          </div>
         </div>
       </div>
 

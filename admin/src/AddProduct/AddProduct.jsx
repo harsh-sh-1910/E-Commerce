@@ -17,7 +17,7 @@ const INITIAL_DATA = {
   ],
 };
 
-// const API = "http://localhost:5000";
+// const URL = "http://localhost:5000";
 const URL = "https://e-commerce-4pcq.onrender.com";
 
 const AddProduct = () => {
@@ -70,7 +70,7 @@ const AddProduct = () => {
   const [variations, setVariations] = useState([
     { attributeType: "", options: [] },
   ]);
-  console.log(variations);
+  // console.log(variations);
 
   const addVariation = () => {
     setVariations([...variations, { attributeType: "", options: [] }]);
@@ -162,17 +162,21 @@ const AddProduct = () => {
       );
 
       // --- Inventory
-      const inventory = {
-        sku,
-        stockQty: stock,
-        productType: gtinType,
-        productValue: gtinValue,
-      };
-      form.append("inventory", JSON.stringify(inventory));
+      form.append(
+        "inventory",
+        JSON.stringify({
+          sku,
+          stockQty: stock,
+          productType: gtinType,
+          productValue: gtinValue,
+        })
+      );
 
       // --- Pricing
-      const pricing = { mrp, salePrice, tax, shippingWeight: weight };
-      form.append("pricing", JSON.stringify(pricing));
+      form.append(
+        "pricing",
+        JSON.stringify({ mrp, salePrice, tax, shippingWeight: weight })
+      );
 
       // --- Shipment & Dimensions
       form.append("shipmentCharge", JSON.stringify(shipment));
@@ -182,34 +186,36 @@ const AddProduct = () => {
       form.append("upsellProducts", upsellProducts);
       form.append("crosssellProducts", crosssellProducts);
 
-      // --- Variations (build JSON and attach files)
-      const variationsPayload = variations.map((variation, vIdx) => ({
+      // --- Variations (JSON + files with correct field names)
+      const variationsPayload = variations.map((variation, vIndex) => ({
         attribute: variation.attributeType,
-        options: variation.options.map((opt, oIdx) => {
+        options: variation.options.map((opt, oIndex) => {
           const imageNames = [];
+
           if (Array.isArray(opt.images)) {
-            opt.images.forEach((file) => {
+            opt.images.forEach((file, fileIndex) => {
               if (file instanceof File) {
-                // Indexed field for multer
-                form.append(`variationImages[${vIdx}][${oIdx}]`, file);
+                // ✅ Use the correct field name format expected by backend
+                const fieldName = `variationImages[${vIndex}][${oIndex}]`;
+                form.append(fieldName, file);
                 imageNames.push(file.name);
               } else if (typeof file === "string") {
-                imageNames.push(file); // existing image name
+                imageNames.push(file);
               }
             });
           }
+
           return {
-            productName: opt.productName || "", // <-- Add productName here
+            productName: opt.productName || "",
             value: opt.value,
             price: opt.price,
             stock: opt.stock,
             sku: opt.sku,
-            images: imageNames,
+            images: imageNames, // These names are just placeholders
           };
         }),
       }));
 
-      // Append JSON structure before unrelated files
       form.append("variations", JSON.stringify(variationsPayload));
 
       // --- Category & SEO
@@ -224,6 +230,7 @@ const AddProduct = () => {
         form.append("gallery", file);
       });
 
+      // Debug log
       for (let [key, value] of form.entries()) {
         console.log(key, value instanceof File ? value.name : value);
       }
@@ -233,7 +240,7 @@ const AddProduct = () => {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
-      alert("Product added!");
+      alert("✅ Product added!");
     } catch (error) {
       if (
         error.response &&
@@ -369,7 +376,8 @@ const AddProduct = () => {
     const file = e.target.files[0];
     if (file && file.size <= 5 * 1024 * 1024) {
       setMainImage(file);
-      setPreviewUrl(URL.createObjectURL(file));
+      // ✅ Make sure to use window.URL to avoid conflicts
+      setPreviewUrl(window.URL.createObjectURL(file));
     } else {
       alert("Only PNG/JPG images under 5MB are allowed");
     }
@@ -617,7 +625,7 @@ const AddProduct = () => {
                       </label>
                       <div className="relative">
                         <span className="absolute left-3 top-2 text-gray-500 text-sm">
-                          $
+                          &#8377;
                         </span>
                         <input
                           type="text"
@@ -634,7 +642,7 @@ const AddProduct = () => {
                       </label>
                       <div className="relative">
                         <span className="absolute left-3 top-2 text-gray-500 text-sm">
-                          $
+                          &#8377;
                         </span>
                         <input
                           type="text"
@@ -988,7 +996,9 @@ const AddProduct = () => {
                                             src={
                                               typeof img === "string"
                                                 ? img
-                                                : URL.createObjectURL(img)
+                                                : window.URL.createObjectURL(
+                                                    img
+                                                  )
                                             }
                                             alt={`Variation ${imgIdx + 1}`}
                                             className="w-full h-24 object-cover !rounded-button"

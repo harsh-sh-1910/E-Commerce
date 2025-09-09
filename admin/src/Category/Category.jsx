@@ -11,6 +11,7 @@ const Category = () => {
 
   // const BASE_URL = "http://localhost:5000";
   const URL = "https://e-commerce-4pcq.onrender.com";
+
   // 🟡 Fetch categories
   const fetchCategories = async () => {
     try {
@@ -25,6 +26,65 @@ const Category = () => {
   useEffect(() => {
     fetchCategories();
   }, []);
+
+  // Helper function to find parent category ID
+  const findParentCategory = (categoryId, cats, parentId = null) => {
+    for (const category of cats) {
+      if (category._id === categoryId) {
+        return parentId;
+      }
+      if (category.children?.length > 0) {
+        const found = findParentCategory(
+          categoryId,
+          category.children,
+          category._id
+        );
+        if (found !== null) {
+          return found;
+        }
+      }
+    }
+    return null;
+  };
+
+  // Helper function to expand parent categories up to the selected category
+  const expandPathToCategory = (categoryId, cats, path = []) => {
+    for (const category of cats) {
+      const currentPath = [...path, category._id];
+      if (category._id === categoryId) {
+        return currentPath.slice(0, -1); // Return path without the target category itself
+      }
+      if (category.children?.length > 0) {
+        const found = expandPathToCategory(
+          categoryId,
+          category.children,
+          currentPath
+        );
+        if (found) {
+          return found;
+        }
+      }
+    }
+    return null;
+  };
+
+  // Enhanced category selection handler
+  const handleCategorySelection = (categoryId) => {
+    if (categoryId === "none" || categoryId === "") {
+      setSelectedCategory(categoryId);
+      return;
+    }
+
+    // Find and expand parent categories
+    const parentPath = expandPathToCategory(categoryId, categories);
+    if (parentPath) {
+      const newExpanded = new Set(expandedCategories);
+      parentPath.forEach((parentId) => newExpanded.add(parentId));
+      setExpandedCategories(newExpanded);
+    }
+
+    setSelectedCategory(categoryId);
+  };
 
   // 🟢 Add category
   const handleAddCategory = async () => {
@@ -86,49 +146,88 @@ const Category = () => {
     }
   };
 
-  // 🔁 Helper to render tree
+  // Enhanced tree rendering with selection highlighting
   const renderCategoryTree = (cats, level = 0) =>
-    cats.map((category) => (
-      <div key={category._id} className="mb-2 ml-4">
-        <div className="flex items-center justify-between bg-white border px-4 py-2 rounded shadow-sm">
-          <div className="flex items-center gap-3">
-            {category.children?.length > 0 && (
-              <button
-                onClick={() => toggleCategory(category._id)}
-                className="text-gray-500"
-              >
-                {expandedCategories.has(category._id) ? "▼" : "▶"}
-              </button>
-            )}
-            {category.image && (
-              <img
-                src={`${URL}/${encodeURI(
-                  category.image.replaceAll("\\", "/")
-                )}`}
-                className="w-10 h-10 object-cover rounded"
-                alt={category.name}
-              />
-            )}
-            <span>{category.name}</span>
-          </div>
-          <div className="flex gap-2">
-            <button
-              onClick={() => handleDeleteCategory(category._id)}
-              className="text-red-500 text-sm"
-            >
-              Delete
-            </button>
-          </div>
-        </div>
+    cats.map((category) => {
+      const isSelected = selectedCategory === category._id;
+      const hasSelectedChild = checkIfHasSelectedChild(category);
 
-        {expandedCategories.has(category._id) &&
-          category.children?.length > 0 && (
-            <div className="ml-6 mt-1">
-              {renderCategoryTree(category.children, level + 1)}
+      return (
+        <div key={category._id} className="mb-2 ml-4">
+          <div
+            className={`flex items-center justify-between border px-4 py-2 rounded shadow-sm cursor-pointer transition-colors ${
+              isSelected
+                ? "bg-blue-100 border-blue-300"
+                : hasSelectedChild
+                ? "bg-blue-50 border-blue-200"
+                : "bg-white hover:bg-gray-50"
+            }`}
+            onClick={() => handleCategorySelection(category._id)}
+          >
+            <div className="flex items-center gap-3">
+              {category.children?.length > 0 && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    toggleCategory(category._id);
+                  }}
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  {expandedCategories.has(category._id) ? "▼" : "▶"}
+                </button>
+              )}
+              {category.image && (
+                <img
+                  src={`${URL}/${encodeURI(
+                    category.image.replaceAll("\\", "/")
+                  )}`}
+                  className="w-10 h-10 object-cover rounded"
+                  alt={category.name}
+                />
+              )}
+              <span className={isSelected ? "font-semibold text-blue-700" : ""}>
+                {category.name}
+              </span>
+              {isSelected && (
+                <span className="text-xs bg-blue-200 text-blue-800 px-2 py-1 rounded">
+                  Selected
+                </span>
+              )}
             </div>
-          )}
-      </div>
-    ));
+            <div className="flex gap-2">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDeleteCategory(category._id);
+                }}
+                className="text-red-500 text-sm hover:text-red-700"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+
+          {expandedCategories.has(category._id) &&
+            category.children?.length > 0 && (
+              <div className="ml-6 mt-1">
+                {renderCategoryTree(category.children, level + 1)}
+              </div>
+            )}
+        </div>
+      );
+    });
+
+  // Helper function to check if a category has a selected child
+  const checkIfHasSelectedChild = (category) => {
+    if (!category.children || category.children.length === 0) return false;
+
+    for (const child of category.children) {
+      if (child._id === selectedCategory || checkIfHasSelectedChild(child)) {
+        return true;
+      }
+    }
+    return false;
+  };
 
   // Toggle expand/collapse
   const toggleCategory = (id) => {
@@ -150,7 +249,7 @@ const Category = () => {
   };
 
   return (
-    <div className="min-h-screen p-6">
+    <div className="min-h-screen p-6 bg-gray-50">
       <div className="max-w-4xl mx-auto">
         <h1 className="text-3xl font-bold mb-6">Category Manager</h1>
 
@@ -162,12 +261,12 @@ const Category = () => {
               value={titleInput}
               onChange={(e) => setTitleInput(e.target.value)}
               placeholder="Category name"
-              className="border px-4 py-2 rounded w-full"
+              className="border px-4 py-2 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
             <select
               value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
-              className="border px-4 py-2 rounded w-full"
+              onChange={(e) => handleCategorySelection(e.target.value)}
+              className="border px-4 py-2 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="">Select Parent Category</option>
               <option value="none">None (Parent)</option>
@@ -181,13 +280,13 @@ const Category = () => {
               type="file"
               accept="image/*"
               onChange={(e) => setCategoryImage(e.target.files[0])}
-              className="border px-4 py-2 rounded w-full col-span-2"
+              className="border px-4 py-2 rounded w-full col-span-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
           <button
             onClick={handleAddCategory}
             disabled={!titleInput.trim() || loading}
-            className="mt-4 bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 disabled:opacity-50"
+            className="mt-4 bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 disabled:opacity-50 transition-colors"
           >
             {loading ? "Adding..." : "Add Category"}
           </button>
@@ -196,6 +295,10 @@ const Category = () => {
         {/* Tree */}
         <div className="bg-white p-6 rounded-lg shadow-md">
           <h2 className="text-xl font-semibold mb-4">Category Tree</h2>
+          <div className="mb-4 text-sm text-gray-600">
+            Click on any category to select it. Parent categories will
+            automatically expand when child categories are selected.
+          </div>
           {categories.length > 0 ? (
             renderCategoryTree(categories)
           ) : (

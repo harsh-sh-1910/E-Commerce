@@ -16,6 +16,7 @@ gsap.registerPlugin(ScrollTrigger);
 
 const ShopPage = () => {
   const URL = "https://e-commerce-4pcq.onrender.com";
+  // const URL = "http://localhost:5000";
   const [wishlistMsg, setWishlistMsg] = useState("");
   const [animateId, setAnimateId] = useState(null);
   const [products, setProducts] = useState([]);
@@ -112,10 +113,10 @@ const ShopPage = () => {
   const wishlist = JSON.parse(localStorage.getItem("wishlist")) || [];
 
   const prices = [
-    "₹0 - ₹500",
-    "₹500 - ₹1,000",
-    "₹1,000 - ₹1,500",
-    "₹1,500 - ₹2,000",
+    "₹0 - ₹5000",
+    "₹5000 - ₹10,000",
+    "₹10,000 - ₹50,000",
+    "₹50,000 - ₹200,000",
   ];
 
   const productStatuses = [
@@ -653,11 +654,11 @@ const ShopPage = () => {
                   <div className="mt-2 text-lg">
                     {item.pricing?.mrp && (
                       <span className="line-through text-gray-400 mr-2">
-                        ${item.pricing.mrp}
+                        &#8377;{item.pricing.mrp}
                       </span>
                     )}
                     <span className="text-teal-600 font-semibold">
-                      ${item.pricing?.salePrice ?? 0}
+                      &#8377;{item.pricing?.salePrice ?? 0}
                     </span>
                   </div>
                 </Link>

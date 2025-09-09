@@ -13,7 +13,9 @@ import { LocationContext } from "../LocationContent/LocationContent";
 
 const SingleProduct = () => {
   const URL = "https://e-commerce-4pcq.onrender.com";
+  // const URL = "http://localhost:5000";
   const token = localStorage.getItem("accessToken");
+
   const decodedUser = token ? jwtDecode(token) : null;
   const [selectedImage, setSelectedImage] = useState(0);
   const [selectedColor, setSelectedColor] = useState("");
@@ -374,10 +376,10 @@ const SingleProduct = () => {
               <div className="border-b border-gray-200 pb-6">
                 <div className="flex items-center gap-3 mb-2">
                   <span className="text-3xl font-bold text-gray-900">
-                    $ {variation[0].options[index].price}
+                    &#8377;{variation[0].options[index].price}
                   </span>
                   <span className="text-xl text-gray-500 line-through">
-                    ${product.pricing.mrp}
+                    &#8377;{product.pricing.mrp}
                   </span>
                 </div>
               </div>
@@ -604,6 +606,9 @@ const SingleProduct = () => {
                 }
                 if (block.type === "paragraph") {
                   return <p className=" mb-3">{block.data.text}</p>;
+                }
+                if (block.type === "image") {
+                  return <img src={block.data.url} />;
                 }
               })}
             </div>

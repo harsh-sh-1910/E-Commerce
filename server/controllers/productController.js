@@ -41,7 +41,7 @@ const createProduct = async (req, res) => {
       .filter((s) => s?.name?.trim() && s?.value?.trim())
       .map((s) => ({ name: s.name.trim(), value: s.value.trim() }));
 
-    const variationsRaw = JSON.parse(req.body.variations);
+    const variationsRaw = JSON.parse(req.body.variations || "[]");
     const inventory = safeParse(req.body.inventory, "{}");
     const pricing = safeParse(req.body.pricing, "{}");
     const dimension = safeParse(req.body.dimension, "{}");
@@ -64,8 +64,6 @@ const createProduct = async (req, res) => {
         : [],
     };
 
-    // console.log("Files received:", req.files);
-
     // --- Categorize files manually because of upload.any()
     let mainImage = "";
     const gallery = [];
@@ -73,7 +71,7 @@ const createProduct = async (req, res) => {
 
     (req.files || []).forEach((file) => {
       if (file.fieldname === "mainImage") {
-        mainImage = file.filename;
+        mainImage = file.filename; // multer always gives unique filename
       } else if (file.fieldname === "gallery") {
         gallery.push(file.filename);
       } else if (file.fieldname.startsWith("variationImages")) {
@@ -84,7 +82,7 @@ const createProduct = async (req, res) => {
           const oIdx = match[2];
           if (!fileMap[vIdx]) fileMap[vIdx] = {};
           if (!fileMap[vIdx][oIdx]) fileMap[vIdx][oIdx] = [];
-          fileMap[vIdx][oIdx].push(file.filename);
+          fileMap[vIdx][oIdx].push(file.filename); // use multer's stored filename
         }
       }
     });
@@ -92,11 +90,8 @@ const createProduct = async (req, res) => {
     // --- Merge uploaded variation images into variations JSON
     variationsRaw.forEach((variation, vIdx) => {
       variation.options.forEach((opt, oIdx) => {
-        if (fileMap[vIdx]?.[oIdx]) {
-          opt.images = fileMap[vIdx][oIdx]; // assign array of images
-        } else {
-          opt.images = opt.images || []; // ensure it's always an array
-        }
+        // Always overwrite images with multer-uploaded filenames
+        opt.images = fileMap[vIdx]?.[oIdx] || [];
         opt.productName = opt.productName?.trim() || "";
         opt.price = Number(opt.price) || 0;
         opt.stock = Number(opt.stock) || 0;
@@ -105,9 +100,10 @@ const createProduct = async (req, res) => {
 
     // --- Ensure required fields
     if (!mainImage) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Main image is required." });
+      return res.status(400).json({
+        success: false,
+        message: "Main image is required.",
+      });
     }
     if (!inventory.sku || !inventory.stockQty) {
       return res.status(400).json({
@@ -116,9 +112,10 @@ const createProduct = async (req, res) => {
       });
     }
     if (!seo.title || !seo.keywords || !seo.desc || !seo.slug) {
-      return res
-        .status(400)
-        .json({ success: false, message: "SEO fields are required." });
+      return res.status(400).json({
+        success: false,
+        message: "SEO fields are required.",
+      });
     }
 
     // --- Save product
@@ -157,11 +154,8 @@ const createProduct = async (req, res) => {
       mainImage,
       gallery,
     });
-    console.log(newProduct);
 
     const savedProduct = await newProduct.save();
-    console.log("Saved product:", savedProduct);
-
     return res.status(201).json({ success: true, product: savedProduct });
   } catch (err) {
     console.error("Product creation failed:", err);
