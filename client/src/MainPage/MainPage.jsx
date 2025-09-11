@@ -30,118 +30,87 @@ import { LuRefreshCw } from "react-icons/lu";
 import { IoEye } from "react-icons/io5";
 
 import { FaArrowRightLong } from "react-icons/fa6";
+import { BsCart3 } from "react-icons/bs";
 
 const MainPage = () => {
   const URL = "https://e-commerce-4pcq.onrender.com";
   // const URL = "http://localhost:5000";
   const [deals, setDeals] = useState([]);
   const [categories, setCategories] = useState([]);
-  const newArrivals = [
-    {
-      id: 1,
-      title: "Ring Wi-Fi Video Doorbell",
-      category: "iPad & Tablets",
-      image: "/ring.jpg",
-      rating: 5,
-      price: "$2,770.00",
-      oldPrice: null,
-      available: 80,
-      sold: 0,
-      time: {
-        start: "2025-08-05 10:00 AM",
-        end: "2025-08-05 06:00 PM",
-      },
-    },
-    {
-      id: 2,
-      title: "Ring Wi-Fi Video Doorbell",
-      category: "iPad & Tablets",
-      image: "/ring.jpg",
-      rating: 5,
-      price: "$2,770.00",
-      oldPrice: null,
-      available: 80,
-      sold: 0,
-      time: {
-        start: "2025-08-05 10:00 AM",
-        end: "2025-08-05 06:00 PM",
-      },
-    },
-    {
-      id: 3,
-      title: "Ring Wi-Fi Video Doorbell",
-      category: "iPad & Tablets",
-      image: "/ring.jpg",
-      rating: 5,
-      price: "$2,770.00",
-      oldPrice: null,
-      available: 80,
-      sold: 0,
-      time: {
-        start: "2025-08-05 10:00 AM",
-        end: "2025-08-05 06:00 PM",
-      },
-    },
-    {
-      id: 4,
-      title: "Ring Wi-Fi Video Doorbell",
-      category: "iPad & Tablets",
-      image: "/ring.jpg",
-      rating: 5,
-      price: "$2,770.00",
-      oldPrice: null,
-      available: 80,
-      sold: 0,
-      time: {
-        start: "2025-08-05 10:00 AM",
-        end: "2025-08-05 06:00 PM",
-      },
-    },
-    {
-      id: 5,
-      title: "Ring Wi-Fi Video Doorbell",
-      category: "iPad & Tablets",
-      image: "/ring.jpg",
-      rating: 5,
-      price: "$2,770.00",
-      oldPrice: null,
-      available: 80,
-      sold: 0,
-    },
-    {
-      id: 6,
-      title: "Ring Wi-Fi Video Doorbell",
-      category: "iPad & Tablets",
-      image: "/ring.jpg",
-      rating: 5,
-      price: "$2,770.00",
-      oldPrice: null,
-      available: 80,
-      sold: 0,
-    },
-    {
-      id: 7,
-      title: "Ring Wi-Fi Video Doorbell",
-      category: "iPad & Tablets",
-      image: "/ring.jpg",
-      rating: 5,
-      price: "$2,770.00",
-      oldPrice: null,
-      available: 80,
-      sold: 0,
-    },
-    {
-      id: 8,
-      title: "Ring Wi-Fi Video Doorbell",
-      category: "iPad & Tablets",
-      image: "/ring.jpg",
-      rating: 5,
-      price: "$2,770.00",
-      oldPrice: null,
-      available: 80,
-      sold: 0,
-    },
-  ];
+  const [products, setProducts] = useState([]);
+  const [wishlist, setWishlist] = useState([]);
+
+  const [wishlistMsg, setWishlistMsg] = useState("");
+  const [cartMsg, setCartMsg] = useState("");
+  const [animateId, setAnimateId] = useState(null);
+  const [animateCartId, setAnimateCartId] = useState(null);
+  const [quickViewProduct, setQuickViewProduct] = useState(null);
+  const [selectedAttributes, setSelectedAttributes] = useState({});
+  const handleAddToWishlist = (product) => {
+    const selectedItem = {
+      _id: product._id,
+      title: product.name,
+      price: product.pricing?.salePrice,
+      image: `${URL}/${product.mainImage}`,
+    };
+
+    // Get existing wishlist from localStorage
+    const existingWishlist = JSON.parse(localStorage.getItem("wishlist")) || [];
+    const itemIndex = existingWishlist.findIndex(
+      (item) => item._id === selectedItem._id
+    );
+
+    let isAdded = false;
+    if (itemIndex === -1) {
+      existingWishlist.push(selectedItem);
+      setWishlistMsg(`${selectedItem.title} added to wishlist`);
+      isAdded = true;
+    } else {
+      existingWishlist.splice(itemIndex, 1);
+      setWishlistMsg(`${selectedItem.title} removed from wishlist`);
+    }
+
+    // Save updated wishlist
+    localStorage.setItem("wishlist", JSON.stringify(existingWishlist));
+    window.dispatchEvent(new Event("wishlistUpdated"));
+
+    setAnimateCartId(item._id);
+    setTimeout(() => setAnimateCartId(null), 500);
+    setTimeout(() => setCartMsg(""), 2000);
+  };
+
+  const toggleCartItem = (product) => {
+    const cart = JSON.parse(localStorage.getItem("cart")) || [];
+    const index = cart.findIndex((item) => item._id === product._id);
+
+    if (index !== -1) {
+      cart.splice(index, 1);
+      setCartMsg(`${product.name} removed from cart`);
+    } else {
+      cart.push({ ...product, quantity: 1 });
+      setCartMsg(`${product.name} added to cart`);
+    }
+
+    localStorage.setItem("cart", JSON.stringify(cart));
+
+    setAnimateCartId(product._id);
+    setTimeout(() => setAnimateCartId(null), 300);
+
+    setTimeout(() => setCartMsg(""), 2000);
+    window.dispatchEvent(new Event("cartUpdated"));
+  };
+  const isInCart = (id) => {
+    let cart = JSON.parse(localStorage.getItem("cart")) || [];
+    return cart.some((c) => c._id === id);
+  };
+
+  const handleViewProduct = (item) => {
+    setQuickViewProduct(item);
+  };
+
+  const closeQuickView = () => {
+    setQuickViewProduct(null);
+  };
 
   const scrollSlider = (direction, sliderId) => {
     const slider = document.getElementById(sliderId);
@@ -242,7 +211,7 @@ const MainPage = () => {
         const updatedDeals = res.data.map((deal) => {
           const product = deal.productName;
           const discountPercent = deal.discount;
-          console.log(product);
+          console.log(res.data);
           const originalPrice = product.pricing.mrp;
           let price;
           if (discountPercent) {
@@ -365,6 +334,18 @@ const MainPage = () => {
 
     fetchCategories();
   }, []);
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const res = await axios.get(`${URL}/product/`);
+        setProducts(res.data);
+        console.log(res.data);
+      } catch (error) {
+        console.error("Error fetching products:", error);
+      }
+    };
+    fetchProducts();
+  }, []);
   return (
     <>
       <div className="py-4 px-4 lg:px-10 bg-gray-100">
@@ -390,7 +371,24 @@ const MainPage = () => {
               </div>
             </div>
           </div>
-
+          {wishlistMsg && (
+            <div className="fixed top-5 right-5 bg-white text-black px-4 py-2 rounded shadow-2xl z-50 transition-opacity duration-500 w-90">
+              <div className="flex gap-5 items-center">{wishlistMsg}</div>
+              <Link to="/wishlistPage">
+                <button className="text-teal-600 underline">
+                  View Wishlist
+                </button>
+              </Link>
+            </div>
+          )}
+          {cartMsg && (
+            <div className="fixed top-5 right-5 bg-white text-black px-4 py-2 rounded shadow-2xl z-50 transition-opacity duration-500 w-90">
+              <div className="flex gap-5 items-center">{cartMsg}</div>
+              <Link to="/checkout">
+                <button className="text-teal-600 underline">View Cart</button>
+              </Link>
+            </div>
+          )}
           {/* Right side */}
           <div className="w-full lg:w-1/2 flex flex-col sm:flex-row gap-4">
             {/* Banner-2 (hide on mobile) */}
@@ -472,10 +470,7 @@ const MainPage = () => {
         <div className="py-6">
           <div className="flex flex-wrap 2xl:flex-nowrap justify-between gap-4">
             {/* 1. Discounts */}
-            <div
-              ref={(el) => (itemsRef.current[0] = el)}
-              className="w-full md:w-[48%] lg:w-[23%] 2xl:w-[19%] flex items-center gap-4 bg-white px-4 py-3 rounded-xl shadow-sm"
-            >
+            <div className="w-full md:w-[48%] lg:w-[23%] 2xl:w-[19%] flex items-center gap-4 bg-white px-4 py-3 rounded-xl shadow-sm">
               <FaTags size={20} className="text-black" />
               <p className="text-lg text-black">
                 Log in{" "}
@@ -486,19 +481,13 @@ const MainPage = () => {
             </div>
 
             {/* 2. Open stores */}
-            <div
-              ref={(el) => (itemsRef.current[1] = el)}
-              className="w-full md:w-[48%] lg:w-[23%] 2xl:w-[19%] flex items-center gap-4 bg-white px-4 py-3 rounded-xl shadow-sm"
-            >
+            <div className="w-full md:w-[48%] lg:w-[23%] 2xl:w-[19%] flex items-center gap-4 bg-white px-4 py-3 rounded-xl shadow-sm">
               <FaStore size={20} className="text-black" />
               <p className="text-lg text-black">Open new stores in your city</p>
             </div>
 
             {/* 3. Fast delivery */}
-            <div
-              ref={(el) => (itemsRef.current[2] = el)}
-              className="w-full md:w-[48%] lg:w-[23%] 2xl:w-[19%] flex items-center gap-4 bg-white px-4 py-3 rounded-xl shadow-sm"
-            >
+            <div className="w-full md:w-[48%] lg:w-[23%] 2xl:w-[19%] flex items-center gap-4 bg-white px-4 py-3 rounded-xl shadow-sm">
               <FaTruck size={20} className="text-black" />
               <p className="text-lg text-black">
                 Free fast express delivery with tracking
@@ -506,10 +495,7 @@ const MainPage = () => {
             </div>
 
             {/* 4. Insurance */}
-            <div
-              ref={(el) => (itemsRef.current[3] = el)}
-              className="hidden md:flex w-full md:w-[48%] lg:w-[23%] 2xl:w-[19%] items-center gap-4 bg-white px-4 py-3 rounded-xl shadow-sm"
-            >
+            <div className="hidden md:flex w-full md:w-[48%] lg:w-[23%] 2xl:w-[19%] items-center gap-4 bg-white px-4 py-3 rounded-xl shadow-sm">
               <FaShieldAlt size={20} className="text-black" />
               <p className="text-lg text-black">
                 Equipment loose and damage insurance
@@ -518,7 +504,7 @@ const MainPage = () => {
 
             {/* 5. Installment */}
             <div
-              ref={(el) => (itemsRef.current[4] = el)}
+              // ref={(el) => (itemsRef.current[4] = el)}
               className="hidden xl:flex w-full md:w-[48%] lg:w-[23%] 2xl:w-[19%] items-center gap-4 bg-white px-4 py-3 rounded-xl shadow-sm"
             >
               <FaCreditCard size={20} className="text-black" />
@@ -597,65 +583,112 @@ const MainPage = () => {
           </button>
 
           {/* Horizontal Scroll */}
-          <div
-            className="flex gap-6 overflow-x-auto scroll-smooth no-scrollbar px-10"
-            id="slider2"
-          >
-            {newArrivals.map((item) => (
-              <div
-                key={item.id}
-                className="flex-shrink-0 lg:w-[250px] bg-white p-4 rounded-lg shadow-sm"
-              >
-                {/* Product Image */}
+          <div className="relative">
+            {/* Slider Container */}
+            <div
+              id="slider2"
+              className="flex gap-4 overflow-x-auto scroll-smooth snap-x snap-mandatory py-4 px-2 hide-scrollbar"
+            >
+              {products.map((item) => (
                 <div
-                  className="w-full h-[200px] flex items-center justify-center rounded-lg bg-cover group cursor-pointer"
-                  style={{ backgroundImage: "url('/ring.jpg')" }}
+                  key={item._id}
+                  className="flex-shrink-0 w-[180px] sm:w-[200px] md:w-[220px] lg:w-[250px] bg-white p-4 rounded-lg shadow relative group snap-start"
                 >
-                  <div className="bg-opacity-60 p-4 rounded-xl group-hover:flex gap-3 hidden transition-all">
-                    <span className="p-2 bg-white rounded-2xl hover:bg-gray-200">
-                      <FaRegHeart />
-                    </span>
-                    <span className="p-2 bg-white rounded-2xl hover:bg-gray-200">
-                      <LuRefreshCw />
-                    </span>
-                    <span className="p-2 bg-white rounded-2xl hover:bg-gray-200">
-                      <IoEye />
+                  {/* Product Image */}
+                  <div className="w-full h-[200px] flex items-center justify-center relative overflow-hidden rounded-lg">
+                    <img
+                      src={`${URL}/${item.mainImage}`}
+                      alt={item.name}
+                      className="object-contain w-full h-full transition-transform duration-300 group-hover:scale-105"
+                      onMouseEnter={(e) => {
+                        if (item.gallery && item.gallery.length > 0) {
+                          e.currentTarget.src = `${URL}/${item.gallery[0]}`;
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.src = `${URL}/${item.mainImage}`;
+                      }}
+                    />
+
+                    {/* Hover Icons */}
+                    <div className="absolute flex gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300">
+                      <span className="p-2 bg-white rounded-2xl hover:bg-gray-200 shadow">
+                        <FaRegHeart
+                          className={`cursor-pointer transition-transform duration-300 ${
+                            wishlist.some((w) => w._id === item._id)
+                              ? "text-red-500" // ✅ turns red if in wishlist
+                              : "text-gray-400"
+                          }`}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            e.preventDefault();
+                            handleAddToWishlist(item);
+                          }}
+                        />
+                      </span>
+
+                      <span className="p-2 bg-white rounded-2xl hover:bg-gray-200 shadow">
+                        <BsCart3
+                          className={`cursor-pointer transition-transform duration-300 ${
+                            isInCart(item._id)
+                              ? "text-teal-600"
+                              : "text-gray-400"
+                          }`}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            e.preventDefault();
+                            toggleCartItem(item);
+                          }}
+                        />
+                      </span>
+
+                      <span className="p-2 bg-white rounded-2xl hover:bg-gray-200 shadow text-gray-400">
+                        <IoEye
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            e.preventDefault();
+                            handleViewProduct(item);
+                          }}
+                        />
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Category */}
+                  <p className="text-sm text-gray-500 mt-3">
+                    {item.categoryName}
+                  </p>
+
+                  {/* Title (truncate if long) */}
+                  <h3 className="text-md font-medium truncate">{item.name}</h3>
+
+                  {/* Rating */}
+                  <div className="flex text-teal-600 mt-1 text-sm">
+                    {Array.from({ length: item.rating || 0 }).map((_, i) => (
+                      <FaStar key={i} />
+                    ))}
+                  </div>
+
+                  {/* Price */}
+                  <div className="mt-2 text-sm">
+                    {item.pricing?.mrp && (
+                      <span className="text-gray-400 line-through mr-2">
+                        ₹{item.pricing.mrp}
+                      </span>
+                    )}
+                    <span
+                      className={`${
+                        item.pricing?.mrp
+                          ? "text-teal-600 font-semibold"
+                          : "text-black"
+                      }`}
+                    >
+                      ₹{item.pricing?.salePrice ?? 0}
                     </span>
                   </div>
                 </div>
-
-                {/* Category */}
-                <p className="text-sm text-gray-500 mt-3">{item.category}</p>
-
-                {/* Title */}
-                <h3 className="text-md font-medium">{item.title}</h3>
-
-                {/* Rating */}
-                <div className="flex text-teal-600 mt-1 text-sm">
-                  {Array.from({ length: item.rating }).map((_, i) => (
-                    <FaStar key={i} />
-                  ))}
-                </div>
-
-                {/* Price */}
-                <div className="mt-2 text-sm">
-                  {item.oldPrice && (
-                    <span className="text-gray-400 line-through mr-2">
-                      {item.oldPrice}
-                    </span>
-                  )}
-                  <span
-                    className={`${
-                      item.oldPrice
-                        ? "text-teal-600 font-semibold"
-                        : "text-black"
-                    }`}
-                  >
-                    {item.price}
-                  </span>
-                </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
       </div>
@@ -668,7 +701,7 @@ const MainPage = () => {
           {/* Card 1 */}
           <div
             className="w-full sm:w-1/2 lg:w-1/4 p-2"
-            ref={(el) => (cardsRef.current[0] = el)}
+            // ref={(el) => (cardsRef.current[0] = el)}
           >
             <div className="flex items-center gap-3 bg-gray-100 text-gray-800 px-5 py-4 rounded-lg shadow-sm hover:shadow-md transition-all duration-200 h-full">
               <span className="text-xl text-teal-800">
@@ -681,7 +714,7 @@ const MainPage = () => {
           {/* Card 2 */}
           <div
             className="w-full sm:w-1/2 lg:w-1/4 p-2"
-            ref={(el) => (cardsRef.current[1] = el)}
+            // ref={(el) => (cardsRef.current[1] = el)}
           >
             <div className="flex items-center gap-3 bg-gray-100 text-gray-800 px-5 py-4 rounded-lg shadow-sm hover:shadow-md transition-all duration-200 h-full">
               <span className="text-xl text-teal-800">
@@ -694,7 +727,7 @@ const MainPage = () => {
           {/* Card 3 */}
           <div
             className="w-full sm:w-1/2 lg:w-1/4 p-2"
-            ref={(el) => (cardsRef.current[2] = el)}
+            // ref={(el) => (cardsRef.current[2] = el)}
           >
             <div className="flex items-center gap-3 bg-gray-100 text-gray-800 px-5 py-4 rounded-lg shadow-sm hover:shadow-md transition-all duration-200 h-full">
               <span className="text-xl text-teal-800">
@@ -707,7 +740,7 @@ const MainPage = () => {
           {/* Card 4 */}
           <div
             className="w-full sm:w-1/2 lg:w-1/4 p-2"
-            ref={(el) => (cardsRef.current[3] = el)}
+            // ref={(el) => (cardsRef.current[3] = el)}
           >
             <div className="flex items-center gap-3 bg-gray-100 text-gray-800 px-5 py-4 rounded-lg shadow-sm hover:shadow-md transition-all duration-200 h-full">
               <span className="text-xl text-teal-800">
@@ -720,7 +753,7 @@ const MainPage = () => {
           {/* Card 5 */}
           <div
             className="w-full sm:w-1/2 lg:w-1/4 p-2 hidden sm:block"
-            ref={(el) => (cardsRef.current[4] = el)}
+            // ref={(el) => (cardsRef.current[4] = el)}
           >
             <div className="flex items-center gap-3 bg-gray-100 text-gray-800 px-5 py-4 rounded-lg shadow-sm hover:shadow-md transition-all duration-200 h-full">
               <span className="text-xl text-teal-800">
@@ -733,7 +766,7 @@ const MainPage = () => {
           {/* Card 6 */}
           <div
             className="w-full sm:w-1/2 lg:w-1/4 p-2 hidden sm:block"
-            ref={(el) => (cardsRef.current[5] = el)}
+            // ref={(el) => (cardsRef.current[5] = el)}
           >
             <div className="flex items-center gap-3 bg-gray-100 text-gray-800 px-5 py-4 rounded-lg shadow-sm hover:shadow-md transition-all duration-200 h-full">
               <span className="text-xl text-teal-800">
@@ -746,7 +779,7 @@ const MainPage = () => {
           {/* Card 7 */}
           <div
             className="w-full sm:w-1/2 lg:w-1/4 p-2 hidden sm:block"
-            ref={(el) => (cardsRef.current[6] = el)}
+            // ref={(el) => (cardsRef.current[6] = el)}
           >
             <div className="flex items-center gap-3 bg-gray-100 text-gray-800 px-5 py-4 rounded-lg shadow-sm hover:shadow-md transition-all duration-200 h-full">
               <span className="text-xl text-teal-800">
@@ -759,7 +792,7 @@ const MainPage = () => {
           {/* Card 8 */}
           <div
             className="w-full sm:w-1/2 lg:w-1/4 p-2 hidden sm:block"
-            ref={(el) => (cardsRef.current[7] = el)}
+            // ref={(el) => (cardsRef.current[7] = el)}
           >
             <div className="flex items-center gap-3 bg-gray-100 text-gray-800 px-5 py-4 rounded-lg shadow-sm hover:shadow-md transition-all duration-200 h-full">
               <span className="text-xl text-teal-800">
@@ -802,7 +835,7 @@ const MainPage = () => {
                   <div className="mt-2 text-sm">
                     {item.oldPrice && (
                       <span className="text-gray-400 line-through mr-2">
-                        $ {item.oldPrice}
+                        &#8377;{item.oldPrice}
                       </span>
                     )}
                     <span
@@ -812,7 +845,7 @@ const MainPage = () => {
                           : "text-black font-medium"
                       }`}
                     >
-                      $ {item.price}
+                      &#8377; {item.price}
                     </span>
                   </div>
 
@@ -917,10 +950,10 @@ const MainPage = () => {
               onMouseLeave={() =>
                 handleAnimation(banner3Ref.current, "reverse")
               }
-              className="w-full h-[300px] sm:h-[350px] md:h-[450px] md:w-[100%] lg:h-[400px] bg-cover bg-center flex justify-center pt-5 text-center rounded-xl mirror-animate"
+              className="w-full h-[300px] sm:h-[350px] md:h-[450px] md:w-[100%] lg:h-[500px] bg-cover bg-center flex justify-center pt-5 text-center rounded-xl mirror-animate"
               style={{ backgroundImage: "url('/Banner-8.jpeg')" }}
             >
-              <div className="p-6 rounded-xl text-white max-w-md">
+              <div className="px-6 py-15 rounded-xl text-white max-w-md">
                 <p className="text-3xl md:text-4xl font-bold">
                   Sony 5G Headphone
                 </p>
@@ -970,54 +1003,108 @@ const MainPage = () => {
           </div>
 
           {/* ✅ Right Product */}
-          <div className="w-full xl:w-[75%] flex flex-wrap gap-4 md:gap-6 lg:gap-8">
-            {newArrivals.map((_, index) => (
-              <div
-                key={index}
-                className="w-[47%] sm:w-[30%] lg:w-[22%] bg-white p-4 rounded-xl shadow-sm relative group transition-all"
-              >
-                {/* Image */}
-                <div className="relative w-full h-40 flex items-center justify-center rounded-lg overflow-hidden gap-5">
-                  <img
-                    src="/ring.jpg"
-                    alt="product"
-                    className="max-h-full object-contain"
-                  />
-                  <div className="absolute inset-0 hidden group-hover:flex items-center justify-center gap-2 transition">
-                    <span className="p-2 bg-white rounded-full hover:bg-gray-200">
-                      <FaRegHeart />
-                    </span>
-                    <span className="p-2 bg-white rounded-full hover:bg-gray-200">
-                      <LuRefreshCw />
-                    </span>
-                    <span className="p-2 bg-white rounded-full hover:bg-gray-200">
-                      <IoEye />
+          <div className="w-full xl:w-[75%] grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {products.slice(0, 8).map((item) => {
+              return (
+                <Link
+                  to={`/product/${item.seo?.slug ?? ""}`}
+                  key={item._id}
+                  className="bg-white p-4 rounded shadow relative group min-w-0 flex flex-col"
+                >
+                  {/* Product Image */}
+                  <div className="h-[200px] flex items-center justify-center relative overflow-hidden">
+                    <img
+                      src={`${URL}/${item.mainImage}`}
+                      alt={item.name}
+                      className="object-contain w-full h-full transition-transform duration-300 group-hover:scale-105"
+                      onMouseEnter={(e) => {
+                        if (item.gallery && item.gallery.length > 0) {
+                          e.currentTarget.src = `${URL}/${item.gallery[0]}`;
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.src = `${URL}/${item.mainImage}`;
+                      }}
+                    />
+
+                    {/* Hover Icons */}
+                    <div
+                      className="absolute flex gap-2 
+            opacity-0 group-hover:opacity-100 transition-all duration-300"
+                    >
+                      {/* Wishlist */}
+                      <span className="p-2 bg-gray-100 rounded-2xl hover:bg-gray-200 shadow">
+                        <FaRegHeart
+                          className={`cursor-pointer transition-transform duration-300 ${
+                            wishlist ? "text-red-500" : "text-gray-400"
+                          } ${
+                            animateId === item._id ? "scale-125" : "scale-100"
+                          }`}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            e.preventDefault();
+                            handleAddToWishlist(item);
+                          }}
+                        />
+                      </span>
+
+                      {/* Cart */}
+                      <span className="p-2 bg-gray-100 rounded-2xl hover:bg-gray-200 shadow">
+                        <BsCart3
+                          className={`cursor-pointer transition-transform duration-300 ${
+                            isInCart(item._id)
+                              ? "text-teal-600"
+                              : "text-gray-400"
+                          } ${
+                            animateCartId === item._id
+                              ? "scale-125"
+                              : "scale-100"
+                          }`}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            e.preventDefault();
+                            toggleCartItem(item);
+                          }}
+                        />
+                      </span>
+
+                      {/* Quick View */}
+                      <span className="p-2 bg-gray-100 rounded-2xl hover:bg-gray-200 shadow text-gray-400">
+                        <IoEye
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            e.preventDefault();
+                            handleViewProduct(item);
+                          }}
+                        />
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Category */}
+                  <p className="text-sm text-gray-500 mt-3">
+                    {item.categoryName}
+                  </p>
+
+                  {/* Product Name */}
+                  <h3 className="text-md font-semibold truncate">
+                    {item.name}
+                  </h3>
+
+                  {/* Price */}
+                  <div className="mt-2 text-lg">
+                    {item.pricing?.mrp && (
+                      <span className="line-through text-gray-400 mr-2">
+                        ₹{item.pricing.mrp}
+                      </span>
+                    )}
+                    <span className="text-teal-600 font-semibold">
+                      ₹{item.pricing?.salePrice ?? 0}
                     </span>
                   </div>
-                </div>
-
-                {/* Title */}
-                <h3 className="mt-3 text-sm font-medium">
-                  Product {index + 1}
-                </h3>
-
-                {/* Rating */}
-                <div className="flex text-teal-600 mt-1 text-sm">
-                  {[...Array(5)].map((_, i) =>
-                    index === 5 && i === 4 ? (
-                      <FaStarHalfAlt key={i} />
-                    ) : (
-                      <FaStar key={i} />
-                    )
-                  )}
-                </div>
-
-                {/* Price */}
-                <div className="mt-2 text-sm font-semibold text-gray-700">
-                  ${(Math.random() * 300 + 20).toFixed(2)}
-                </div>
-              </div>
-            ))}
+                </Link>
+              );
+            })}
           </div>
         </div>
       </div>
@@ -1062,61 +1149,314 @@ const MainPage = () => {
           {/* Left Product Section */}
           <div
             className="w-full xl:w-[75%] flex flex-wrap gap-4 md:gap-6 lg:gap-8"
-            data-aos="fade-right"
+            // data-aos="fade-right"
           >
-            {newArrivals.map((_, index) => (
-              <div
-                key={index}
-                className="w-[47%] sm:w-[30%] lg:w-[22%] bg-white p-4 rounded-xl shadow-sm relative group transition-all"
-              >
-                {/* Image */}
-                <div className="relative w-full h-40 flex items-center justify-center rounded-lg overflow-hidden">
-                  <img
-                    src="/ring.jpg"
-                    alt="product"
-                    className="max-h-full object-contain"
-                  />
-                  <div className="absolute inset-0 hidden group-hover:flex items-center justify-center gap-2 transition">
-                    <span className="p-2 bg-white rounded-full hover:bg-gray-200">
-                      <FaRegHeart />
-                    </span>
-                    <span className="p-2 bg-white rounded-full hover:bg-gray-200">
-                      <LuRefreshCw />
-                    </span>
-                    <span className="p-2 bg-white rounded-full hover:bg-gray-200">
-                      <IoEye />
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+              {products.slice(0, 8).map((item) => {
+                return (
+                  <Link
+                    to={`/product/${item.seo?.slug ?? ""}`}
+                    key={item._id}
+                    className="bg-white p-4 rounded-xl shadow relative group transition-all duration-300"
+                  >
+                    {/* Product Image */}
+                    <div className="h-[200px] flex items-center justify-center relative">
+                      <img
+                        src={`${URL}/${item.mainImage}`}
+                        alt={item.name}
+                        className="object-contain w-full h-full transition-transform duration-300 group-hover:scale-105"
+                        onMouseEnter={(e) => {
+                          if (item.gallery && item.gallery.length > 0) {
+                            e.currentTarget.src = `${URL}/${item.gallery[0]}`;
+                          }
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.src = `${URL}/${item.mainImage}`;
+                        }}
+                      />
+
+                      {/* Hover Icons */}
+                      <div
+                        className="absolute flex gap-2 opacity-0 
+            group-hover:opacity-100 transition-opacity duration-300"
+                      >
+                        {/* Wishlist */}
+                        <span className="p-2 bg-gray-100 rounded-2xl hover:bg-gray-200">
+                          <FaRegHeart
+                            className={`cursor-pointer transition-all duration-300 ${
+                              wishlist ? "text-red-500" : "text-gray-400"
+                            } ${
+                              animateId === item._id ? "scale-125" : "scale-100"
+                            }`}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              e.preventDefault();
+                              handleAddToWishlist(item);
+                            }}
+                          />
+                        </span>
+
+                        {/* Cart */}
+                        <span className="p-2 bg-gray-100 rounded-2xl hover:bg-gray-200">
+                          <BsCart3
+                            className={`cursor-pointer transition-all duration-300 ${
+                              isInCart(item._id)
+                                ? "text-teal-600"
+                                : "text-gray-400"
+                            } ${
+                              animateCartId === item._id
+                                ? "scale-125"
+                                : "scale-100"
+                            }`}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              e.preventDefault();
+                              toggleCartItem(item);
+                            }}
+                          />
+                        </span>
+
+                        {/* Quick View */}
+                        <span className="p-2 bg-gray-100 rounded-2xl hover:bg-gray-200 text-gray-400">
+                          <IoEye
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              e.preventDefault();
+                              handleViewProduct(item);
+                            }}
+                          />
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Category */}
+                    <p className="text-sm text-gray-500 mt-3">
+                      {item.categoryName}
+                    </p>
+
+                    {/* Product Name */}
+                    <h3 className="text-md font-semibold truncate">
+                      {item.name}
+                    </h3>
+
+                    {/* Price */}
+                    <div className="mt-2 text-lg">
+                      {item.pricing?.mrp && (
+                        <span className="line-through text-gray-400 mr-2">
+                          ₹{item.pricing.mrp}
+                        </span>
+                      )}
+                      <span className="text-teal-600 font-semibold">
+                        ₹{item.pricing?.salePrice ?? 0}
+                      </span>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+
+            {/* === QUICK VIEW === */}
+            {quickViewProduct && (
+              <>
+                {/* Overlay */}
+                <div
+                  className="fixed inset-0 bg-opacity-50 z-40 transition-opacity duration-500"
+                  onClick={closeQuickView}
+                ></div>
+
+                {/* Sidebar Panel */}
+                <div
+                  className={`fixed right-0 top-0 h-full w-full md:w-[350px] bg-white z-50 shadow-lg p-6 overflow-y-auto transform transition-transform duration-300 ${
+                    quickViewProduct ? "translate-x-0" : "translate-x-full"
+                  }`}
+                >
+                  {/* Close Button */}
+                  <button
+                    className="absolute top-4 right-4 text-xl text-gray-500 hover:text-gray-800 cursor-pointer"
+                    onClick={closeQuickView}
+                  >
+                    ✕
+                  </button>
+
+                  {/* Product Image */}
+                  {quickViewProduct?.mainImage && (
+                    <img
+                      src={`${URL}/${quickViewProduct.mainImage}`}
+                      alt={quickViewProduct?.name || "Product"}
+                      className="w-full h-64 object-contain rounded-lg mb-4"
+                    />
+                  )}
+
+                  {/* Product Title */}
+                  <h2 className="text-2xl font-bold mb-2">
+                    {quickViewProduct?.name || "Product Name"}
+                  </h2>
+
+                  {/* Price */}
+                  <div className="flex items-center gap-3 mb-4">
+                    {quickViewProduct?.pricing?.mrp && (
+                      <span className="text-lg text-gray-400 line-through">
+                        ₹{quickViewProduct.pricing.mrp}
+                      </span>
+                    )}
+                    <span className="text-2xl font-bold text-blue-600">
+                      ₹
+                      {quickViewProduct?.pricing?.salePrice ??
+                        quickViewProduct?.pricing?.mrp ??
+                        "N/A"}
                     </span>
                   </div>
-                </div>
 
-                {/* Title */}
-                <h3 className="mt-3 text-sm font-medium">
-                  Product {index + 1}
-                </h3>
-
-                {/* Rating */}
-                <div className="flex text-teal-600 mt-1 text-sm">
-                  {[...Array(5)].map((_, i) =>
-                    index === 5 && i === 4 ? (
-                      <FaStarHalfAlt key={i} />
-                    ) : (
-                      <FaStar key={i} />
-                    )
+                  {/* Key Features */}
+                  {Array.isArray(quickViewProduct?.keyFeatures) &&
+                  quickViewProduct.keyFeatures.length > 0 ? (
+                    <div className="mb-6">
+                      <h3 className="text-lg font-semibold mb-3">
+                        Key Features
+                      </h3>
+                      <ul className="list-inside text-gray-600 space-y-1 ">
+                        {quickViewProduct.keyFeatures.map((feature, idx) => (
+                          <li key={idx}>
+                            <span className="font-medium">{feature.name}:</span>{" "}
+                            {feature.value}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ) : (
+                    <p className="text-gray-600 mb-6">
+                      No key features available.
+                    </p>
                   )}
-                </div>
 
-                {/* Price */}
-                <div className="mt-2 text-sm font-semibold text-gray-700">
-                  ${(Math.random() * 300 + 20).toFixed(2)}
+                  {/* Variations */}
+                  {Array.isArray(quickViewProduct?.variations) &&
+                    quickViewProduct.variations.map((variation, idx) => {
+                      const attrName =
+                        typeof variation?.attribute === "string"
+                          ? variation.attribute.toLowerCase()
+                          : "";
+
+                      return (
+                        <div key={idx} className="mb-6">
+                          <h3 className="text-lg font-semibold mb-3">
+                            {variation?.attribute || "Option"}
+                          </h3>
+
+                          <div className="flex gap-3 flex-wrap">
+                            {Array.isArray(variation?.options) &&
+                              variation.options.map((opt, i) => {
+                                const isSelected =
+                                  selectedAttributes?.[variation?.attribute]
+                                    ?.value === opt?.value;
+
+                                return (
+                                  <button
+                                    key={i}
+                                    type="button"
+                                    className={`cursor-pointer transition-all flex items-center justify-center text-xs ${
+                                      attrName === "color"
+                                        ? `w-10 h-10 rounded-full border-2 ${
+                                            isSelected
+                                              ? "border-blue-500 ring-2 ring-blue-200"
+                                              : "border-gray-300 hover:border-gray-400"
+                                          }`
+                                        : `px-4 py-2 rounded-lg border ${
+                                            isSelected
+                                              ? "border-blue-500 bg-blue-50 text-blue-700"
+                                              : "border-gray-300 hover:border-gray-400"
+                                          }`
+                                    }`}
+                                    onClick={() =>
+                                      setSelectedAttributes((prev) => ({
+                                        ...prev,
+                                        [variation?.attribute]: opt,
+                                      }))
+                                    }
+                                    style={
+                                      attrName === "color"
+                                        ? {
+                                            backgroundColor:
+                                              opt?.value || "#ccc",
+                                          }
+                                        : {}
+                                    }
+                                  >
+                                    {attrName !== "color" && (
+                                      <span className="font-semibold">
+                                        {opt?.value || "N/A"}
+                                      </span>
+                                    )}
+                                  </button>
+                                );
+                              })}
+                          </div>
+                        </div>
+                      );
+                    })}
+
+                  <div>
+                    <p className="mb-2">
+                      <strong>Category:</strong>{" "}
+                      {quickViewProduct?.categoryName || "N/A"}
+                    </p>
+                    <p>
+                      <strong>SEO Title:</strong>{" "}
+                      {quickViewProduct?.seo?.title || "N/A"}
+                    </p>
+                    <p>
+                      <strong>SEO Description:</strong>{" "}
+                      {quickViewProduct?.seo?.desc || "N/A"}
+                    </p>
+                    <p>
+                      <strong>SEO Slug:</strong>{" "}
+                      {quickViewProduct?.seo?.slug || "N/A"}
+                    </p>
+
+                    <div className="pt-2 cursor-pointer">
+                      <Link
+                        to={`/product/${quickViewProduct?.seo?.slug ?? ""}`}
+                        className="font-semibold underline"
+                      >
+                        See Details
+                      </Link>
+                    </div>
+                  </div>
+
+                  {/* Add to Cart */}
+                  <button
+                    className="mt-6 w-full bg-teal-600 text-white py-3 rounded-lg hover:bg-black"
+                    onClick={() => {
+                      let cart = JSON.parse(localStorage.getItem("cart")) || [];
+                      const existing = cart.find(
+                        (item) => item._id === quickViewProduct._id
+                      );
+
+                      if (existing) {
+                        cart = cart.map((item) =>
+                          item._id === quickViewProduct._id
+                            ? { ...item, quantity: item.quantity + 1 }
+                            : item
+                        );
+                      } else {
+                        cart.push({ ...quickViewProduct, quantity: 1 });
+                      }
+
+                      localStorage.setItem("cart", JSON.stringify(cart));
+                      console.log("Cart updated:", cart);
+                    }}
+                  >
+                    Add to Cart
+                  </button>
                 </div>
-              </div>
-            ))}
+              </>
+            )}
           </div>
 
           {/* Right Banner Section */}
           <div
-            className="hidden xl:flex w-full xl:w-[25%] h-[300px] sm:h-[350px] md:h-[450px] xl:h-[600px] items-end justify-center rounded-xl relative overflow-hidden"
-            data-aos="fade-left"
+            className="hidden xl:flex w-full xl:w-[25%] h-[300px] sm:h-[350px] md:h-[450px] xl:h-[660px] items-end justify-center rounded-xl relative overflow-hidden"
+            // data-aos="fade-left"
           >
             {/* Background Image */}
             <div
@@ -1186,7 +1526,7 @@ const MainPage = () => {
         <div
           className="w-full lg:w-1/3 h-[250px] sm:h-[300px] md:h-[400px] lg:h-[250px] bg-cover bg-center flex items-center ps-5 rounded-xl"
           style={{ backgroundImage: "url('/bootom-01.jpeg')" }}
-          data-aos="fade-right"
+          // data-aos="fade-right"
         >
           <div className="bg-opacity-60 p-4 rounded-xl text-black">
             <p className="text-2xl sm:text-3xl font-bold">
@@ -1205,7 +1545,7 @@ const MainPage = () => {
         <div
           className="w-full lg:w-2/3 h-[250px] sm:h-[300px] md:h-[400px] lg:h-[250px] bg-cover bg-center flex items-center rounded-xl"
           style={{ backgroundImage: "url('/bootom-01.jpeg')" }}
-          data-aos="fade-left"
+          // data-aos="fade-left"
         >
           <div className="bg-opacity-60 p-4 rounded-xl text-black flex flex-col gap-5 ps-5 w-full max-w-md">
             <p className="text-xl sm:text-2xl font-bold">

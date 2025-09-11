@@ -1,5 +1,6 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { GoogleOAuthProvider } from "@react-oauth/google";
 import Header from "./Header/Header";
 import Footer from "./Footer/Footer";
 import MainPage from "./MainPage/MainPage";
@@ -25,47 +26,49 @@ import { LocationProvider } from "./LocationContent/LocationContent";
 
 const App = () => {
   return (
-    <LocationProvider>
-      <div>
-        <Router>
-          <Header />
-          <Routes>
-            <Route path="/" element={<MainPage />} />
-            <Route path="/login" element={<Login />} />
-            <Route
-              path="/profile"
-              element={
-                <ProtectedRoute>
-                  <Profile />
-                </ProtectedRoute>
-              }
-            />
-            <Route path="/userAddress" element={<UserAddress />} />
-            <Route path="/userOrder" element={<UserOrders />} />
-            <Route path="/updateuser" element={<UpdateUser />} />
-            <Route path="/userreview" element={<UserReview />} />
-            <Route path="/shop" element={<ShopPage />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/contact" element={<Contact />} />
-            <Route path="/blog" element={<BlogPage />} />
-            <Route path="/singleblogPage" element={<SingleBlogPage />} />
-            <Route path="/blogcatgeory" element={<BlogCategory />} />
-            <Route path="/product/:slug" element={<SingleProduct />} />
-            <Route path="/checkout" element={<CheckoutPage />} />
-            <Route
-              path="/checkoutForm"
-              element={
-                <ProtectedRoute>
-                  <CheckoutFormPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route path="/wishlistPage" element={<WishlistPage />} />
-          </Routes>
-          <Footer />
-        </Router>
-      </div>
-    </LocationProvider>
+    <GoogleOAuthProvider clientId="1091483560078-tafio8k122bpuklpmok439ohdlm940ls.apps.googleusercontent.com">
+      <LocationProvider>
+        <div>
+          <Router>
+            <Header />
+            <Routes>
+              <Route path="/" element={<MainPage />} />
+              <Route path="/login" element={<Login />} />
+              <Route
+                path="/profile"
+                element={
+                  <ProtectedRoute>
+                    <Profile />
+                  </ProtectedRoute>
+                }
+              />
+              <Route path="/userAddress" element={<UserAddress />} />
+              <Route path="/userOrder" element={<UserOrders />} />
+              <Route path="/updateuser" element={<UpdateUser />} />
+              <Route path="/userreview" element={<UserReview />} />
+              <Route path="/shop" element={<ShopPage />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/contact" element={<Contact />} />
+              <Route path="/blog" element={<BlogPage />} />
+              <Route path="/singleblogPage" element={<SingleBlogPage />} />
+              <Route path="/blogcatgeory" element={<BlogCategory />} />
+              <Route path="/product/:slug" element={<SingleProduct />} />
+              <Route path="/checkout" element={<CheckoutPage />} />
+              <Route
+                path="/checkoutForm"
+                element={
+                  <ProtectedRoute>
+                    <CheckoutFormPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route path="/wishlistPage" element={<WishlistPage />} />
+            </Routes>
+            <Footer />
+          </Router>
+        </div>
+      </LocationProvider>
+    </GoogleOAuthProvider>
   );
 };
 

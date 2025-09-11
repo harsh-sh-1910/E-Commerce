@@ -32,6 +32,7 @@ import {
 
 const Header = () => {
   const URL = "https://e-commerce-4pcq.onrender.com";
+  // const URL = "http://localhost:5000";
   const navigate = useNavigate();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [showAll, setShowAll] = useState(false);
@@ -96,6 +97,8 @@ const Header = () => {
 
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
+    console.log(token);
+
     setIsLoggedIn(!!token); // true if token exists
   }, []);
 
@@ -468,9 +471,9 @@ const Header = () => {
         <div className="bg-[#e6f6f6] px-12 mt-2 mb-2 xl:flex hidden h-15">
           <div className="flex items-center justify-between w-full">
             {/* Left - All Departments */}
-            <div className="flex gap-10 relative">
+            <div className="flex gap-20">
               <div
-                className="flex items-center gap-2 relative"
+                className="flex items-center gap-2 relative" // ✅ keep relative here
                 onMouseEnter={() => setShowAll(true)}
                 onMouseLeave={() => setShowAll(false)}
               >
@@ -479,502 +482,494 @@ const Header = () => {
                     type="button"
                     className="flex items-center gap-2 bg-white px-5 py-2 rounded-md z-10 transition-colors duration-300 group-hover:bg-[#008080] group-hover:text-white"
                   >
-                    {/* Icon on left */}
                     <HiOutlineSquares2X2 className="text-3xl bg-[#008080] text-white p-[4px] rounded-md" />
-
-                    {/* Sliding text container (fixed width so text doesn't disappear) */}
                     <div className="relative h-6 w-36 overflow-hidden">
-                      {/* Default text */}
-                      <span className="absolute inset-0 translate-y-0 transition-transform duration-400 ease-out group-hover:translate-y-full">
-                        All Departments
-                      </span>
-                      {/* Hover text */}
-                      <span className="absolute inset-0 -translate-y-full transition-transform duration-400 ease-out group-hover:translate-y-0">
+                      <span className="transition-transform duration-400 ease-out">
                         All Departments
                       </span>
                     </div>
-
-                    {/* Arrow on right */}
                     <MdKeyboardArrowDown className="transition-transform duration-300 group-hover:rotate-180" />
                   </button>
                 </div>
-                {showAll && (
-                  <div className="z-10">
-                    <ul className="absolute top-[38px] left-0 bg-white mt-2 rounded-lg w-62">
-                      <Link to="/shop">
-                        {" "}
-                        <li
-                          className="flex gap-5 px-5 py-4 text-nowrap border-b-1 border-gray-300 justify-evenly"
-                          onMouseEnter={() => setAudioData(true)}
-                          onMouseLeave={() => setAudioData(false)}
-                        >
-                          <span className="">
-                            <GiSoundWaves className="mt-[3px] text-xl" />
-                          </span>
-                          <span className="text-md">Audio Electronics</span>
-                          <span className="">
-                            <IoIosArrowForward className="mt-1" />
-                          </span>
-                          {audioData && (
-                            <div className="absolute flex gap-10 px-6 py-10 bg-white w-[70vw] h-[70vh] top-[0px] rounded-xl left-62">
-                              {/* Left Sidebar */}
-                              <div className="w-full xl:w-1/4">
-                                <h2 className="text-lg font-semibold mb-2 flex items-center gap-1">
-                                  All Catgeories
-                                  <span className="bg-pink-500 text-white text-[10px] px-2 py-0.5 rounded-full">
-                                    HOT DEAL
-                                  </span>
-                                </h2>
-                                <ul className="space-y-2 text-sm text-gray-700 mb-6 text-nowrap">
-                                  {categories.slice(0, 5).map((cat, idx) => {
-                                    const discount =
-                                      Math.floor(Math.random() * 50) + 10; // random 10–59%
-                                    return (
-                                      <li
-                                        key={idx}
-                                        className="hover:underline cursor-pointer"
-                                      >
-                                        {discount}% off on {cat.name}
-                                      </li>
-                                    );
-                                  })}
-                                </ul>
 
-                                <h2 className="text-lg font-semibold mb-2">
-                                  Campaigns
-                                </h2>
-                                <ul className="space-y-2 text-sm text-gray-700 mb-6">
-                                  <li className="hover:underline">
-                                    {Math.floor(Math.random() * 50) + 10}% off
-                                    and Free Deliveries
-                                  </li>
-                                  <li className="hover:underline">
-                                    {Math.floor(Math.random() * 50) + 10}% off
-                                    and Free Returns
-                                  </li>
-                                </ul>
-                                <Link to="/shop">
-                                  <button className="px-5 py-2 rounded-md border border-teal-600 text-teal-600 hover:bg-teal-50 transition">
-                                    All Campaigns →
-                                  </button>
-                                </Link>
-                              </div>
-
-                              {/* Product of the Week Section */}
-                              <div className="w-full xl:w-3/4">
-                                <h2 className="text-xl font-semibold mb-6">
-                                  Product of The{" "}
-                                  <span className="underline">Week</span>
-                                </h2>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                                  {products.map((item, idx) => (
-                                    <div
+                <div
+                  className={`absolute top-[-15%] left-0 mt-2 w-64 bg-white rounded-lg shadow-lg z-50 transition-all duration-400 transform
+    ${showAll ? "opacity-100 " : "opacity-0 pointer-events-none"}
+  `}
+                >
+                  <ul className="absolute top-[38px] left-0 bg-white mt-2 rounded-lg w-62">
+                    <Link to="/shop">
+                      {" "}
+                      <li
+                        className="flex gap-5 px-5 py-4 text-nowrap border-b-1 border-gray-300 justify-evenly"
+                        onMouseEnter={() => setAudioData(true)}
+                        onMouseLeave={() => setAudioData(false)}
+                      >
+                        <span className="">
+                          <GiSoundWaves className="mt-[3px] text-xl" />
+                        </span>
+                        <span className="text-md">Audio Electronics</span>
+                        <span className="">
+                          <IoIosArrowForward className="mt-1" />
+                        </span>
+                        {audioData && (
+                          <div className="absolute flex gap-10 px-6 py-10 bg-white w-[70vw] h-[70vh] top-[0px] rounded-xl left-62">
+                            {/* Left Sidebar */}
+                            <div className="w-full xl:w-1/4">
+                              <h2 className="text-lg font-semibold mb-2 flex items-center gap-1">
+                                All Catgeories
+                                <span className="bg-pink-500 text-white text-[10px] px-2 py-0.5 rounded-full">
+                                  HOT DEAL
+                                </span>
+                              </h2>
+                              <ul className="space-y-2 text-sm text-gray-700 mb-6 text-nowrap">
+                                {categories.slice(0, 5).map((cat, idx) => {
+                                  const discount =
+                                    Math.floor(Math.random() * 50) + 10; // random 10–59%
+                                  return (
+                                    <li
                                       key={idx}
-                                      className="bg-white p-4 rounded-xl shadow-sm text-center flex flex-col items-center"
+                                      className="hover:underline cursor-pointer"
                                     >
-                                      <img
-                                        src={item.image}
-                                        alt={item.name}
-                                        className="h-40 object-contain mb-4"
-                                      />
-                                      <p className="text-sm text-gray-500">
-                                        {item.category}
-                                      </p>
-                                      <h3 className="text-lg font-semibold">
-                                        {item.name}
-                                      </h3>
-                                      <div className="text-green-600 text-sm mb-1">
-                                        ★★★★★
-                                      </div>
-                                      <p className="text-md font-medium">
-                                        {item.price}
-                                      </p>
-                                    </div>
-                                  ))}
-                                </div>
-                              </div>
+                                      {discount}% off on {cat.name}
+                                    </li>
+                                  );
+                                })}
+                              </ul>
+
+                              <h2 className="text-lg font-semibold mb-2">
+                                Campaigns
+                              </h2>
+                              <ul className="space-y-2 text-sm text-gray-700 mb-6">
+                                <li className="hover:underline">
+                                  {Math.floor(Math.random() * 50) + 10}% off and
+                                  Free Deliveries
+                                </li>
+                                <li className="hover:underline">
+                                  {Math.floor(Math.random() * 50) + 10}% off and
+                                  Free Returns
+                                </li>
+                              </ul>
+                              <Link to="/shop">
+                                <button className="px-5 py-2 rounded-md border border-teal-600 text-teal-600 hover:bg-teal-50 transition">
+                                  All Campaigns →
+                                </button>
+                              </Link>
                             </div>
-                          )}
-                        </li>
-                      </Link>
-                      <Link to="/shop">
-                        <li
-                          className="flex gap-5 px-5 justify-evenly py-4 text-nowrap border-b-1 border-gray-300"
-                          onMouseEnter={() => setCameraData(true)}
-                          onMouseLeave={() => setCameraData(false)}
-                        >
-                          <span>
-                            <BsCameraVideo className="mt-[3px] text-lg" />
-                          </span>
-                          <span className="text-md px-[3px]">
-                            Camera & Drone
-                          </span>
-                          <span className="">
-                            <IoIosArrowForward className="mt-1 " />
-                          </span>
-                          {cameraData && (
-                            <div className="absolute bg-white px-6 py-10 space-y-5 top-[0px] w-[80vw] left-62 h-[75vh] overflow-auto scroll-smooth no-scrollbar rounded-xl">
-                              {/* Top Section - Blog Cards and Promo Banner */}
-                              <div className="flex gap-5">
-                                <div>
-                                  {" "}
-                                  <div className="flex gap-5">
-                                    {/* Blog Card 1 */}
-                                    <div className="rounded-xl overflow-hidden shadow-sm border">
-                                      <img
-                                        src="/article-01.jpg"
-                                        alt="Blog 1"
-                                        className="w-full h-56 object-cover"
-                                      />
-                                      <div className="p-4">
-                                        <span className="text-xs font-medium text-white bg-emerald-700 px-2 py-1 rounded">
-                                          Audio Electronics
-                                        </span>
-                                        <h3 className="mt-4 text-lg font-semibold">
-                                          Announcing the new Fitbits Charge
-                                          6smart Fitness
-                                        </h3>
-                                        <p className="text-sm text-gray-600 mt-1">
-                                          Recently, I was invited by Nintendo of
-                                          Canada to attend a very
-                                        </p>
-                                      </div>
-                                    </div>
-                                    {/* Blog Card 2 */}
-                                    <div className="rounded-xl overflow-hidden shadow-sm border">
-                                      <img
-                                        src="/article-02.jpg"
-                                        alt="Blog 2"
-                                        className="w-full h-56 object-cover"
-                                      />
-                                      <div className="p-4">
-                                        <span className="text-xs font-medium text-white bg-emerald-700 px-2 py-1 rounded">
-                                          Audio Electronics
-                                        </span>
-                                        <h3 className="mt-4 text-lg font-semibold">
-                                          Your Conversion Rate on Amazon
-                                        </h3>
-                                        <p className="text-sm text-gray-600 mt-1">
-                                          Recently, I was invited by Nintendo of
-                                          Canada to attend a very
-                                        </p>
-                                      </div>
-                                    </div>
-                                  </div>
-                                  {/* Bottom Section - Category Links */}
-                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-10  pt-6">
-                                    {/* Home Appliances */}
-                                    <div className="ps-5">
-                                      <h3 className="flex items-center gap-2 text-lg font-semibold">
-                                        <HiHome className="text-xl" /> Home
-                                        Appliances
-                                      </h3>
-                                      <ul className="mt-3 text-gray-700 space-y-1 text-sm">
-                                        <li>Refrigerators</li>
-                                        <li>Washing Machine</li>
-                                        <li>Smart Home</li>
-                                        <li>Security Device</li>
-                                        <li className="text-black font-medium hover:underline cursor-pointer">
-                                          View All Items →
-                                        </li>
-                                      </ul>
-                                    </div>
 
-                                    {/* Audio Electronics */}
-                                    <div>
-                                      <h3 className="flex items-center gap-2 text-lg font-semibold">
-                                        <PiMusicNotesSimpleBold className="text-xl" />{" "}
-                                        Audio Electronics
-                                      </h3>
-                                      <ul className="mt-3 text-gray-700 space-y-1 text-sm">
-                                        <li>Gaming Devices</li>
-                                        <li>TVs and Avs</li>
-                                        <li>Wearable Technology</li>
-                                        <li>iPads and Tablets</li>
-                                        <li className="text-black font-medium hover:underline cursor-pointer">
-                                          View All Items →
-                                        </li>
-                                      </ul>
-                                    </div>
-                                  </div>
-                                </div>
-
-                                {/* Promo Banner */}
-                                <div className="relative rounded-xl overflow-hidden">
-                                  <img
-                                    src="/Banner-9.jpeg"
-                                    alt="Promo"
-                                    className="w-full h-full object-cover"
-                                  />
-                                  <div className="absolute bottom-6 left-6 text-white">
-                                    <h2 className="text-2xl font-bold">
-                                      Speakers
-                                    </h2>
-                                    <h1 className="text-4xl font-extrabold">
-                                      45% Flat
-                                    </h1>
-                                    <p className="text-sm mt-1">
-                                      On Selected Brands
+                            {/* Product of the Week Section */}
+                            <div className="w-full xl:w-3/4">
+                              <h2 className="text-xl font-semibold mb-6">
+                                Product of The{" "}
+                                <span className="underline">Week</span>
+                              </h2>
+                              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                                {products.map((item, idx) => (
+                                  <div
+                                    key={idx}
+                                    className="bg-white p-4 rounded-xl shadow-sm text-center flex flex-col items-center"
+                                  >
+                                    <img
+                                      src={item.image}
+                                      alt={item.name}
+                                      className="h-40 object-contain mb-4"
+                                    />
+                                    <p className="text-sm text-gray-500">
+                                      {item.category}
                                     </p>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          )}
-                        </li>
-                      </Link>
-                      <Link to="/shop">
-                        <li
-                          className="flex gap-3 px-5 py-4 text-nowrap border-b-1 border-gray-300 justify-between"
-                          onMouseEnter={() => setComputerData(true)}
-                          onMouseLeave={() => setComputerData(false)}
-                        >
-                          <span className="flex gap-4">
-                            <span>
-                              <RiComputerLine className="mt-[3px] text-lg" />
-                            </span>
-                            <span className="text-md flex ml-3">Computers</span>
-                          </span>
-                          <span className="">
-                            <IoIosArrowForward className="mt-1" />
-                          </span>
-                          {computerData && (
-                            <div className="flex flex-col lg:flex-row items-start justify-between ps-5 py-16 gap-10 absolute w-[50vw] top-0 left-62 bg-white rounded-xl">
-                              {/* Left Side - Categories */}
-                              <div className="grid grid-cols-2 gap-10 flex-1">
-                                {/* Map through parent categories */}
-                                {categories.slice(0, 4).map((parent, idx) => (
-                                  <div key={idx}>
-                                    {/* Parent Heading */}
-                                    <h3 className="font-semibold text-lg text-gray-900 border-b-2 border-teal-500 inline-block mb-3">
-                                      {parent.name}
+                                    <h3 className="text-lg font-semibold">
+                                      {item.name}
                                     </h3>
-
-                                    {/* Child Categories (only 3, & replaced with line break) */}
-                                    <ul className="space-y-2 text-gray-700">
-                                      {parent.children &&
-                                      parent.children.length > 0 ? (
-                                        parent.children
-                                          .slice(0, 2)
-                                          .map((child, i) => (
-                                            <li
-                                              key={i}
-                                              className="hover:text-teal-600 hover:underline cursor-pointer transition-colors"
-                                            >
-                                              {child.name
-                                                .split("&")
-                                                .map((part, idx2) => (
-                                                  <span
-                                                    key={idx2}
-                                                    className="block"
-                                                  >
-                                                    {part.trim()}
-                                                  </span>
-                                                ))}
-                                            </li>
-                                          ))
-                                      ) : (
-                                        <li className="text-gray-400 italic">
-                                          No subcategories
-                                        </li>
-                                      )}
-                                    </ul>
+                                    <div className="text-green-600 text-sm mb-1">
+                                      ★★★★★
+                                    </div>
+                                    <p className="text-md font-medium">
+                                      {item.price}
+                                    </p>
                                   </div>
                                 ))}
                               </div>
+                            </div>
+                          </div>
+                        )}
+                      </li>
+                    </Link>
+                    <Link to="/shop">
+                      <li
+                        className="flex gap-5 px-5 justify-evenly py-4 text-nowrap border-b-1 border-gray-300"
+                        onMouseEnter={() => setCameraData(true)}
+                        onMouseLeave={() => setCameraData(false)}
+                      >
+                        <span>
+                          <BsCameraVideo className="mt-[3px] text-lg" />
+                        </span>
+                        <span className="text-md px-[3px]">Camera & Drone</span>
+                        <span className="">
+                          <IoIosArrowForward className="mt-1 " />
+                        </span>
+                        {cameraData && (
+                          <div className="absolute bg-white px-6 py-10 space-y-5 top-[0px] w-[80vw] left-62 h-[75vh] overflow-auto scroll-smooth no-scrollbar rounded-xl">
+                            {/* Top Section - Blog Cards and Promo Banner */}
+                            <div className="flex gap-5">
+                              <div>
+                                {" "}
+                                <div className="flex gap-5">
+                                  {/* Blog Card 1 */}
+                                  <div className="rounded-xl overflow-hidden shadow-sm border">
+                                    <img
+                                      src="/article-01.jpg"
+                                      alt="Blog 1"
+                                      className="w-full h-56 object-cover"
+                                    />
+                                    <div className="p-4">
+                                      <span className="text-xs font-medium text-white bg-emerald-700 px-2 py-1 rounded">
+                                        Audio Electronics
+                                      </span>
+                                      <h3 className="mt-4 text-lg font-semibold">
+                                        Announcing the new Fitbits Charge 6smart
+                                        Fitness
+                                      </h3>
+                                      <p className="text-sm text-gray-600 mt-1">
+                                        Recently, I was invited by Nintendo of
+                                        Canada to attend a very
+                                      </p>
+                                    </div>
+                                  </div>
+                                  {/* Blog Card 2 */}
+                                  <div className="rounded-xl overflow-hidden shadow-sm border">
+                                    <img
+                                      src="/article-02.jpg"
+                                      alt="Blog 2"
+                                      className="w-full h-56 object-cover"
+                                    />
+                                    <div className="p-4">
+                                      <span className="text-xs font-medium text-white bg-emerald-700 px-2 py-1 rounded">
+                                        Audio Electronics
+                                      </span>
+                                      <h3 className="mt-4 text-lg font-semibold">
+                                        Your Conversion Rate on Amazon
+                                      </h3>
+                                      <p className="text-sm text-gray-600 mt-1">
+                                        Recently, I was invited by Nintendo of
+                                        Canada to attend a very
+                                      </p>
+                                    </div>
+                                  </div>
+                                </div>
+                                {/* Bottom Section - Category Links */}
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-10  pt-6">
+                                  {/* Home Appliances */}
+                                  <div className="ps-5">
+                                    <h3 className="flex items-center gap-2 text-lg font-semibold">
+                                      <HiHome className="text-xl" /> Home
+                                      Appliances
+                                    </h3>
+                                    <ul className="mt-3 text-gray-700 space-y-1 text-sm">
+                                      <li>Refrigerators</li>
+                                      <li>Washing Machine</li>
+                                      <li>Smart Home</li>
+                                      <li>Security Device</li>
+                                      <li className="text-black font-medium hover:underline cursor-pointer">
+                                        View All Items →
+                                      </li>
+                                    </ul>
+                                  </div>
 
-                              {/* Right Side - Image */}
-                              <div className="relative flex-1 flex justify-center items-center">
+                                  {/* Audio Electronics */}
+                                  <div>
+                                    <h3 className="flex items-center gap-2 text-lg font-semibold">
+                                      <PiMusicNotesSimpleBold className="text-xl" />{" "}
+                                      Audio Electronics
+                                    </h3>
+                                    <ul className="mt-3 text-gray-700 space-y-1 text-sm">
+                                      <li>Gaming Devices</li>
+                                      <li>TVs and Avs</li>
+                                      <li>Wearable Technology</li>
+                                      <li>iPads and Tablets</li>
+                                      <li className="text-black font-medium hover:underline cursor-pointer">
+                                        View All Items →
+                                      </li>
+                                    </ul>
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Promo Banner */}
+                              <div className="relative rounded-xl overflow-hidden">
                                 <img
-                                  src="/header-xbox.jpeg" // replace with your image path
-                                  alt="Xbox Console"
-                                  className="max-w-full h-auto"
+                                  src="/Banner-9.jpeg"
+                                  alt="Promo"
+                                  className="w-full h-full object-cover"
                                 />
-
-                                {/* Price tags */}
-                                <span className="absolute top-[30%] left-[60%] bg-teal-600 text-white px-3 py-1 rounded-full text-sm font-semibold shadow">
-                                  &#8377;52000
-                                </span>
-                                <span className="absolute bottom-[20%] left-[30%] bg-teal-600 text-white px-3 py-1 rounded-full text-sm font-semibold shadow">
-                                  &#8377;5500
-                                </span>
+                                <div className="absolute bottom-6 left-6 text-white">
+                                  <h2 className="text-2xl font-bold">
+                                    Speakers
+                                  </h2>
+                                  <h1 className="text-4xl font-extrabold">
+                                    45% Flat
+                                  </h1>
+                                  <p className="text-sm mt-1">
+                                    On Selected Brands
+                                  </p>
+                                </div>
                               </div>
                             </div>
-                          )}
-                        </li>
-                      </Link>
-                      <Link to="/shop">
-                        <li className="flex gap-3 px-5 py-4 text-nowrap border-b-1 border-gray-300 justify-between">
-                          <span className="flex gap-4">
-                            <span>
-                              <RiCellphoneLine className="mt-[3px] text-lg" />
-                            </span>
-                            <span className="text-md flex ml-3">
-                              Cell Phones
-                            </span>
+                          </div>
+                        )}
+                      </li>
+                    </Link>
+                    <Link to="/shop">
+                      <li
+                        className="flex gap-3 px-5 py-4 text-nowrap border-b-1 border-gray-300 justify-between"
+                        onMouseEnter={() => setComputerData(true)}
+                        onMouseLeave={() => setComputerData(false)}
+                      >
+                        <span className="flex gap-4">
+                          <span>
+                            <RiComputerLine className="mt-[3px] text-lg" />
                           </span>
-                        </li>
-                      </Link>
+                          <span className="text-md flex ml-3">Computers</span>
+                        </span>
+                        <span className="">
+                          <IoIosArrowForward className="mt-1" />
+                        </span>
+                        {computerData && (
+                          <div className="flex flex-col lg:flex-row items-start justify-between ps-5 py-16 gap-10 absolute w-[50vw] top-0 left-62 bg-white rounded-xl">
+                            {/* Left Side - Categories */}
+                            <div className="grid grid-cols-2 gap-10 flex-1">
+                              {/* Map through parent categories */}
+                              {categories.slice(0, 4).map((parent, idx) => (
+                                <div key={idx}>
+                                  {/* Parent Heading */}
+                                  <h3 className="font-semibold text-lg text-gray-900 border-b-2 border-teal-500 inline-block mb-3">
+                                    {parent.name}
+                                  </h3>
 
-                      <Link to="/shop">
-                        <li className="flex gap-3 px-5 py-4 text-nowrap border-b-1 border-gray-300">
-                          <span className="">
-                            <PiCampfireFill className="mt-[3px] text-xl" />
+                                  {/* Child Categories (only 3, & replaced with line break) */}
+                                  <ul className="space-y-2 text-gray-700">
+                                    {parent.children &&
+                                    parent.children.length > 0 ? (
+                                      parent.children
+                                        .slice(0, 2)
+                                        .map((child, i) => (
+                                          <li
+                                            key={i}
+                                            className="hover:text-teal-600 hover:underline cursor-pointer transition-colors"
+                                          >
+                                            {child.name
+                                              .split("&")
+                                              .map((part, idx2) => (
+                                                <span
+                                                  key={idx2}
+                                                  className="block"
+                                                >
+                                                  {part.trim()}
+                                                </span>
+                                              ))}
+                                          </li>
+                                        ))
+                                    ) : (
+                                      <li className="text-gray-400 italic">
+                                        No subcategories
+                                      </li>
+                                    )}
+                                  </ul>
+                                </div>
+                              ))}
+                            </div>
+
+                            {/* Right Side - Image */}
+                            <div className="relative flex-1 flex justify-center items-center">
+                              <img
+                                src="/header-xbox.jpeg" // replace with your image path
+                                alt="Xbox Console"
+                                className="max-w-full h-auto"
+                              />
+
+                              {/* Price tags */}
+                              <span className="absolute top-[30%] left-[60%] bg-teal-600 text-white px-3 py-1 rounded-full text-sm font-semibold shadow">
+                                &#8377;52000
+                              </span>
+                              <span className="absolute bottom-[20%] left-[30%] bg-teal-600 text-white px-3 py-1 rounded-full text-sm font-semibold shadow">
+                                &#8377;5500
+                              </span>
+                            </div>
+                          </div>
+                        )}
+                      </li>
+                    </Link>
+                    <Link to="/shop">
+                      <li className="flex gap-3 px-5 py-4 text-nowrap border-b-1 border-gray-300 justify-between">
+                        <span className="flex gap-4">
+                          <span>
+                            <RiCellphoneLine className="mt-[3px] text-lg" />
                           </span>
-                          <span className="text-md ml-3">Daily Deals</span>
-                        </li>
-                      </Link>
-                      <Link to="/shop">
-                        {" "}
-                        <li className="flex gap-3 px-5 py-4 text-nowrap border-b-1 border-gray-300">
-                          <span className="">
-                            <PiDeviceTabletSpeaker className="mt-[3px] text-xl" />
-                          </span>
-                          <span className="text-md ml-3">ipad & Tablets</span>
-                        </li>
-                      </Link>
-                      <Link to="/shop">
-                        <li className="flex gap-3 px-5 py-4 text-nowrap border-b-1 border-gray-300">
-                          <span className="">
-                            <PiSpeakerHighLight className="mt-[3px] text-xl" />
-                          </span>
-                          <span className="text-md ml-3">
-                            Portable Speakers
-                          </span>
-                        </li>
-                      </Link>
-                    </ul>
-                  </div>
-                )}
+                          <span className="text-md flex ml-3">Cell Phones</span>
+                        </span>
+                      </li>
+                    </Link>
+
+                    <Link to="/shop">
+                      <li className="flex gap-3 px-5 py-4 text-nowrap border-b-1 border-gray-300">
+                        <span className="">
+                          <PiCampfireFill className="mt-[3px] text-xl" />
+                        </span>
+                        <span className="text-md ml-3">Daily Deals</span>
+                      </li>
+                    </Link>
+                    <Link to="/shop">
+                      {" "}
+                      <li className="flex gap-3 px-5 py-4 text-nowrap border-b-1 border-gray-300">
+                        <span className="">
+                          <PiDeviceTabletSpeaker className="mt-[3px] text-xl" />
+                        </span>
+                        <span className="text-md ml-3">ipad & Tablets</span>
+                      </li>
+                    </Link>
+                    <Link to="/shop">
+                      <li className="flex gap-3 px-5 py-4 text-nowrap border-b-1 border-gray-300">
+                        <span className="">
+                          <PiSpeakerHighLight className="mt-[3px] text-xl" />
+                        </span>
+                        <span className="text-md ml-3">Portable Speakers</span>
+                      </li>
+                    </Link>
+                  </ul>
+                </div>
               </div>
               {/* Center - Navigation */}
-              <nav className="flex items-center gap-6 ">
+              <nav className="flex items-center gap-6 relative">
                 <Link
                   to="/"
                   className="group relative inline-flex items-center rounded-md py-3 px-2 hover:bg-white hover:text-teal-700 transition-colors duration-300"
                 >
                   <span className="relative block h-6 w-12 overflow-hidden">
                     {/* Default text */}
-                    <span className="absolute inset-0 translate-y-0 transition-transform duration-400 ease-out group-hover:translate-y-full h-6">
+                    <span className="transition-transform duration-400 ease-out group-hover:translate-y-full h-6">
                       Home
                     </span>
                     {/* Hover text */}
-                    <span className="absolute inset-0 -translate-y-full transition-transform duration-400 ease-out group-hover:translate-y-0 h-6">
+                    {/* <span className="absolute inset-0 -translate-y-full transition-transform duration-400 ease-out group-hover:translate-y-0 h-6">
                       Home
-                    </span>
+                    </span> */}
                   </span>
                 </Link>
 
                 {/* Shop Dropdown */}
                 <Link
                   to="/shop"
-                  className="relative flex items-center gap-1 cursor-pointer rounded-md hover:text-teal-700 py-1 px-1 hover:bg-white group"
+                  className="flex items-center gap-1 cursor-pointer rounded-md hover:text-teal-700 py-1 px-1 hover:bg-white group"
                   onMouseEnter={() => setShopData(true)}
                   onMouseLeave={() => setShopData(false)}
                 >
-                  <div className="group relative hover:text-teal-700 py-2 px-1 cursor-pointer">
-                    <div className="relative overflow-hidden h-6">
-                      <span className="flex items-center transition-transform duration-400 group-hover:-translate-y-full h-6">
+                  <div className="group hover:text-teal-700 py-2 px-1 cursor-pointer">
+                    <div className="overflow-hidden h-6">
+                      <span className="flex items-center transition-transform duration-400 h-6">
                         Shop
                       </span>
-                      <span className="flex items-center absolute top-full left-0 transition-transform duration-400 group-hover:-translate-y-full h-6">
+                      {/* <span className="flex items-center absolute top-full left-0 transition-transform duration-400 group-hover:-translate-y-full h-6">
                         Shop
-                      </span>
+                      </span> */}
                     </div>
                   </div>
                   <MdKeyboardArrowDown className="transition-transform duration-300 group-hover:rotate-180" />
-                  {shopData && (
-                    <div className="fixed left-73 top-[152px] z-50 flex gap-10 px-6 py-10 bg-white w-[70vw] h-[70vh] rounded-xl">
-                      {/* Left Sidebar */}
-                      <div className="w-full xl:w-1/4">
-                        <h2 className="text-lg font-semibold mb-2 flex items-center gap-1">
-                          All Catgeories
-                          <span className="bg-pink-500 text-white text-[10px] px-2 py-0.5 rounded-full">
-                            HOT DEAL
-                          </span>
-                        </h2>
-                        <ul className="space-y-2 text-sm text-gray-700 mb-6 text-nowrap">
-                          {categories.slice(0, 5).map((cat, idx) => {
-                            const discount =
-                              Math.floor(Math.random() * 50) + 10; // random 10–59%
-                            return (
-                              <li
-                                key={idx}
-                                className="hover:underline cursor-pointer"
-                              >
-                                {discount}% off on {cat.name}
-                              </li>
-                            );
-                          })}
-                        </ul>
 
-                        <h2 className="text-lg font-semibold mb-2">
-                          Campaigns
-                        </h2>
-                        <ul className="space-y-2 text-sm text-gray-700 mb-6">
-                          <li className="hover:underline">
-                            {Math.floor(Math.random() * 50) + 10}% off and Free
-                            Deliveries
-                          </li>
-                          <li className="hover:underline">
-                            {Math.floor(Math.random() * 50) + 10}% off and Free
-                            Returns
-                          </li>
-                        </ul>
-                        <Link to="/shop">
-                          <button className="px-5 py-2 rounded-md border border-teal-600 text-teal-600 hover:bg-teal-50 transition">
-                            All Campaigns →
-                          </button>
-                        </Link>
-                      </div>
-
-                      {/* Product of the Week Section */}
-                      <div className="w-full xl:w-3/4">
-                        <h2 className="text-xl font-semibold mb-6">
-                          Product of The <span className="underline">Week</span>
-                        </h2>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                          {products.map((item, idx) => (
-                            <div
+                  <div
+                    className={`absolute translate-x-[-15%] top-[48px] z-50 bg-white px-6 py-10 flex gap-10 w-[70vw] h-[70vh] rounded-xl shadow-lg 
+    transition-all duration-400 ease-in-out transform
+    ${
+      shopData
+        ? "opacity-100 pointer-events-auto"
+        : "opacity-0 pointer-events-none"
+    }
+  `}
+                    onMouseEnter={() => setShopData(true)}
+                    onMouseLeave={() => setShopData(false)}
+                  >
+                    {/* Left Sidebar */}
+                    <div className="w-full xl:w-1/4">
+                      <h2 className="text-lg font-semibold mb-2 flex items-center gap-1">
+                        All Catgeories
+                        <span className="bg-pink-600 text-white text-[10px] px-2 py-0.5 rounded-full">
+                          HOT DEAL
+                        </span>
+                      </h2>
+                      <ul className="space-y-2 text-sm text-gray-700 mb-6 text-nowrap">
+                        {categories.slice(0, 5).map((cat, idx) => {
+                          const discount = Math.floor(Math.random() * 50) + 10; // random 10–59%
+                          return (
+                            <li
                               key={idx}
-                              className="bg-white p-4 rounded-xl shadow-sm text-center flex flex-col items-center"
+                              className="hover:underline cursor-pointer"
                             >
-                              <img
-                                src={item.image}
-                                alt={item.name}
-                                className="h-40 object-contain mb-4"
-                              />
-                              <p className="text-sm text-gray-500">
-                                {item.category}
-                              </p>
-                              <h3 className="text-lg font-semibold">
-                                {item.name}
-                              </h3>
-                              <div className="text-green-600 text-sm mb-1">
-                                ★★★★★
-                              </div>
-                              <p className="text-md font-medium">
-                                {item.price}
-                              </p>
+                              {discount}% off on {cat.name}
+                            </li>
+                          );
+                        })}
+                      </ul>
+
+                      <h2 className="text-lg font-semibold mb-2">Campaigns</h2>
+                      <ul className="space-y-2 text-sm text-gray-700 mb-6">
+                        <li className="hover:underline">
+                          {Math.floor(Math.random() * 50) + 10}% off and Free
+                          Deliveries
+                        </li>
+                        <li className="hover:underline">
+                          {Math.floor(Math.random() * 50) + 10}% off and Free
+                          Returns
+                        </li>
+                      </ul>
+                      <Link to="/shop">
+                        <button className="px-5 py-2 rounded-md border border-teal-600 text-teal-600 hover:bg-teal-50 transition">
+                          All Campaigns →
+                        </button>
+                      </Link>
+                    </div>
+
+                    {/* Product of the Week Section */}
+                    <div className="w-full xl:w-3/4">
+                      <h2 className="text-xl font-semibold mb-6">
+                        Product of The <span className="underline">Week</span>
+                      </h2>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {products.map((item, idx) => (
+                          <div
+                            key={idx}
+                            className="bg-white p-4 rounded-xl shadow-sm text-center flex flex-col items-center"
+                          >
+                            <img
+                              src={item.image}
+                              alt={item.name}
+                              className="h-40 object-contain mb-4"
+                            />
+                            <p className="text-sm text-gray-500">
+                              {item.category}
+                            </p>
+                            <h3 className="text-lg font-semibold">
+                              {item.name}
+                            </h3>
+                            <div className="text-green-600 text-sm mb-1">
+                              ★★★★★
                             </div>
-                          ))}
-                        </div>
+                            <p className="text-md font-medium">{item.price}</p>
+                          </div>
+                        ))}
                       </div>
                     </div>
-                  )}
+                  </div>
                 </Link>
 
                 <Link
                   to="/about"
-                  className="group relative hover:bg-white rounded-md hover:text-teal-700 py-3 px-2"
+                  className="group hover:bg-white rounded-md hover:text-teal-700 py-3 px-2"
                 >
-                  <div className="relative overflow-hidden h-6 ">
-                    <span className="flex items-center h-6 transition-transform duration-400 group-hover:-translate-y-full">
+                  <div className="overflow-hidden h-6 ">
+                    <span className="flex items-center h-6 transition-transform duration-400 ">
                       Our Story
                     </span>
-                    <span className="flex items-center h-6 absolute top-full left-0 transition-transform duration-400 group-hover:-translate-y-full">
+                    {/* <span className="flex items-center h-6 absolute top-full left-0 transition-transform duration-400 group-hover:-translate-y-full">
                       Our Story
-                    </span>
+                    </span> */}
                   </div>
                 </Link>
 
@@ -985,124 +980,127 @@ const Header = () => {
                   onMouseEnter={() => setBlogData(true)}
                   onMouseLeave={() => setBlogData(false)}
                 >
-                  <div className="group relative hover:text-teal-700 py-2 px-1 cursor-pointer">
-                    <div className="relative overflow-hidden h-6">
-                      <span className="block transition-transform duration-400 group-hover:-translate-y-full h-6">
-                        Blog
-                      </span>
-                      <span className="block absolute top-full left-0 transition-transform duration-400 group-hover:-translate-y-full h-6">
+                  <div className="group hover:text-teal-700 py-2 px-1 cursor-pointer">
+                    <div className="overflow-hidden h-6">
+                      <span className="block transition-transform duration-400 h-6">
                         Blog
                       </span>
                     </div>
                   </div>
-                  <MdKeyboardArrowDown className="transition-transform duration-300 group-hover:rotate-180" />
-                  {blogData && (
-                    <div
-                      className="z-10 absolute bg-white px-6 py-10 space-y-5 top-[42px] w-[80vw] left-60 h-[75vh] overflow-auto scroll-smooth no-scrollbar rounded-xl"
-                      onMouseEnter={() => setBlogData(true)}
-                      onMouseLeave={() => setBlogData(false)}
-                    >
-                      {/* Top Section - Blog Cards and Promo Banner */}
-                      <div className="flex gap-5">
-                        <div>
-                          <div className="flex gap-5">
-                            {/* Blog Card 1 */}
-                            <div className="rounded-xl overflow-hidden shadow-sm border">
-                              <img
-                                src="/article-01.jpg"
-                                alt="Blog 1"
-                                className="w-full h-56 object-cover"
-                              />
-                              <div className="p-4">
-                                <span className="text-xs font-medium text-white bg-emerald-700 px-2 py-1 rounded">
-                                  Audio Electronics
-                                </span>
-                                <h3 className="mt-4 text-lg font-semibold">
-                                  Announcing the new Fitbits Charge 6smart
-                                  Fitness
-                                </h3>
-                                <p className="text-sm text-gray-600 mt-1">
-                                  Recently, I was invited by Nintendo of Canada
-                                  to attend a very
-                                </p>
-                              </div>
-                            </div>
-                            {/* Blog Card 2 */}
-                            <div className="rounded-xl overflow-hidden shadow-sm border">
-                              <img
-                                src="/article-02.jpg"
-                                alt="Blog 2"
-                                className="w-full h-56 object-cover"
-                              />
-                              <div className="p-4">
-                                <span className="text-xs font-medium text-white bg-emerald-700 px-2 py-1 rounded">
-                                  Audio Electronics
-                                </span>
-                                <h3 className="mt-4 text-lg font-semibold">
-                                  Your Conversion Rate on Amazon
-                                </h3>
-                                <p className="text-sm text-gray-600 mt-1">
-                                  Recently, I was invited by Nintendo of Canada
-                                  to attend a very
-                                </p>
-                              </div>
+                  <MdKeyboardArrowDown
+                    className={`transition-transform duration-300 ${
+                      blogData ? "rotate-180" : ""
+                    }`}
+                  />
+
+                  {/* Dropdown - always rendered, smooth transition */}
+                  <div
+                    className={`absolute translate-x-[-28%] top-[48px] z-50 bg-white px-6 py-10 space-y-5 w-[80vw] h-[75vh] overflow-auto no-scrollbar rounded-xl shadow-lg transition-all duration-400 ease-in-out transform
+    ${
+      blogData
+        ? "opacity-100 pointer-events-auto"
+        : "opacity-0  pointer-events-none"
+    }`}
+                    onMouseEnter={() => setBlogData(true)}
+                  >
+                    {/* Top Section - Blog Cards and Promo Banner */}
+                    <div className="flex gap-5">
+                      <div>
+                        <div className="flex gap-5">
+                          {/* Blog Card 1 */}
+                          <div className="rounded-xl overflow-hidden shadow-sm border">
+                            <img
+                              src="/article-01.jpg"
+                              alt="Blog 1"
+                              className="w-full h-56 object-cover"
+                            />
+                            <div className="p-4">
+                              <span className="text-xs font-medium text-white bg-emerald-700 px-2 py-1 rounded">
+                                Audio Electronics
+                              </span>
+                              <h3 className="mt-4 text-lg font-semibold">
+                                Announcing the new Fitbits Charge 6smart Fitness
+                              </h3>
+                              <p className="text-sm text-gray-600 mt-1">
+                                Recently, I was invited by Nintendo of Canada to
+                                attend a very
+                              </p>
                             </div>
                           </div>
-                          {/* Bottom Section - Category Links */}
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-10  pt-6">
-                            {/* Home Appliances */}
-                            <div className="ps-5">
-                              <h3 className="flex items-center gap-2 text-lg font-semibold">
-                                <HiHome className="text-xl" /> Home Appliances
-                              </h3>
-                              <ul className="mt-3 text-gray-700 space-y-1 text-sm">
-                                <li>Refrigerators</li>
-                                <li>Washing Machine</li>
-                                <li>Smart Home</li>
-                                <li>Security Device</li>
-                                <li className="text-black font-medium hover:underline cursor-pointer">
-                                  View All Items →
-                                </li>
-                              </ul>
-                            </div>
-
-                            {/* Audio Electronics */}
-                            <div>
-                              <h3 className="flex items-center gap-2 text-lg font-semibold">
-                                <PiMusicNotesSimpleBold className="text-xl" />{" "}
+                          {/* Blog Card 2 */}
+                          <div className="rounded-xl overflow-hidden shadow-sm border">
+                            <img
+                              src="/article-02.jpg"
+                              alt="Blog 2"
+                              className="w-full h-56 object-cover"
+                            />
+                            <div className="p-4">
+                              <span className="text-xs font-medium text-white bg-emerald-700 px-2 py-1 rounded">
                                 Audio Electronics
+                              </span>
+                              <h3 className="mt-4 text-lg font-semibold">
+                                Your Conversion Rate on Amazon
                               </h3>
-                              <ul className="mt-3 text-gray-700 space-y-1 text-sm">
-                                <li>Gaming Devices</li>
-                                <li>TVs and Avs</li>
-                                <li>Wearable Technology</li>
-                                <li>iPads and Tablets</li>
-                                <li className="text-black font-medium hover:underline cursor-pointer">
-                                  View All Items →
-                                </li>
-                              </ul>
+                              <p className="text-sm text-gray-600 mt-1">
+                                Recently, I was invited by Nintendo of Canada to
+                                attend a very
+                              </p>
                             </div>
                           </div>
                         </div>
 
-                        {/* Promo Banner */}
-                        <div className="relative rounded-xl overflow-hidden">
-                          <img
-                            src="/Banner-9.jpeg"
-                            alt="Promo"
-                            className="w-full h-full object-cover"
-                          />
-                          <div className="absolute bottom-6 left-6 text-white">
-                            <h2 className="text-2xl font-bold">Speakers</h2>
-                            <h1 className="text-4xl font-extrabold">
-                              45% Flat
-                            </h1>
-                            <p className="text-sm mt-1">On Selected Brands</p>
+                        {/* Bottom Section - Category Links */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-10 pt-6">
+                          {/* Home Appliances */}
+                          <div className="ps-5">
+                            <h3 className="flex items-center gap-2 text-lg font-semibold">
+                              <HiHome className="text-xl" /> Home Appliances
+                            </h3>
+                            <ul className="mt-3 text-gray-700 space-y-1 text-sm">
+                              <li>Refrigerators</li>
+                              <li>Washing Machine</li>
+                              <li>Smart Home</li>
+                              <li>Security Device</li>
+                              <li className="text-black font-medium hover:underline cursor-pointer">
+                                View All Items →
+                              </li>
+                            </ul>
+                          </div>
+
+                          {/* Audio Electronics */}
+                          <div>
+                            <h3 className="flex items-center gap-2 text-lg font-semibold">
+                              <PiMusicNotesSimpleBold className="text-xl" />{" "}
+                              Audio Electronics
+                            </h3>
+                            <ul className="mt-3 text-gray-700 space-y-1 text-sm">
+                              <li>Gaming Devices</li>
+                              <li>TVs and Avs</li>
+                              <li>Wearable Technology</li>
+                              <li>iPads and Tablets</li>
+                              <li className="text-black font-medium hover:underline cursor-pointer">
+                                View All Items →
+                              </li>
+                            </ul>
                           </div>
                         </div>
                       </div>
+
+                      {/* Promo Banner */}
+                      <div className="relative rounded-xl overflow-hidden">
+                        <img
+                          src="/Banner-9.jpeg"
+                          alt="Promo"
+                          className="w-full h-full object-cover"
+                        />
+                        <div className="absolute bottom-6 left-6 text-white">
+                          <h2 className="text-2xl font-bold">Speakers</h2>
+                          <h1 className="text-4xl font-extrabold">45% Flat</h1>
+                          <p className="text-sm mt-1">On Selected Brands</p>
+                        </div>
+                      </div>
                     </div>
-                  )}
+                  </div>
                 </Link>
 
                 <Link
@@ -1110,10 +1108,7 @@ const Header = () => {
                   className="group relative hover:bg-white rounded-md hover:text-teal-700 py-3 px-2"
                 >
                   <div className="relative overflow-hidden h-6">
-                    <span className="block transition-transform duration-400 group-hover:-translate-y-full h-6">
-                      Contact
-                    </span>
-                    <span className="block absolute top-full left-0 transition-transform duration-400 group-hover:-translate-y-full h-6">
+                    <span className="block transition-transform duration-400 h-6">
                       Contact
                     </span>
                   </div>

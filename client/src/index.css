@@ -9,6 +9,13 @@ body {
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
+/* global.css or index.css */
+div[role="button"][aria-label*="Sign in with Google"] {
+  width: 100% !important; /* Full width */
+  font-size: 18px !important; /* Bigger text */
+  height: 50px !important; /* Taller button */
+  border-radius: 8px !important;
+}
 
 .no-scrollbar {
   -ms-overflow-style: none;
@@ -141,4 +148,12 @@ input[type="range"].custom-range::-webkit-slider-thumb {
 
 .animate-slideIn {
   animation: slideIn 0.3s ease-out;
+}
+/* Hide scrollbar for all browsers */
+.hide-scrollbar::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Edge */
+}
+.hide-scrollbar {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
 }

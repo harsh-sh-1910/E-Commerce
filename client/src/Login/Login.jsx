@@ -3,9 +3,11 @@ import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import { useNavigate } from "react-router-dom";
 import { FaEnvelope, FaLock, FaPhone, FaEye, FaEyeSlash } from "react-icons/fa";
+import { GoogleLogin } from "@react-oauth/google";
 
 const Login = () => {
   const URL = "https://e-commerce-4pcq.onrender.com";
+  // const URL = "http://localhost:5000";
   const [currentPage, setCurrentPage] = useState("login");
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
@@ -120,6 +122,28 @@ const Login = () => {
     setLoading(false);
   };
 
+  // ✅ Handle Google Login success
+  const handleGoogleSuccess = async (credentialResponse) => {
+    try {
+      const token = credentialResponse.credential;
+      const res = await axios.post(`${URL}/auth/google-login`, { token });
+
+      const accessToken = res.data?.accessToken;
+      console.log(accessToken);
+
+      if (accessToken) {
+        localStorage.setItem("accessToken", accessToken);
+        alert("Google login successful!");
+        navigate("/");
+      } else {
+        setApiError("Google login failed");
+      }
+    } catch (err) {
+      console.error("Google login error:", err);
+      setApiError("Google login failed. Please try again.");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <main className="flex-1 flex items-center justify-center px-6 py-12">
@@ -160,7 +184,7 @@ const Login = () => {
               )}
 
               <form onSubmit={handleSubmit} className="space-y-6">
-                {/* Username (all) */}
+                {/* Username */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Username
@@ -186,6 +210,7 @@ const Login = () => {
                 {/* Register-only additional fields */}
                 {currentPage === "register" && (
                   <>
+                    {/* First/Last Name */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -201,20 +226,11 @@ const Login = () => {
                             errors.firstName
                               ? "border-red-500"
                               : "border-gray-300"
-                          } ${
-                            formData.firstName && !errors.firstName
-                              ? "border-green-500"
-                              : ""
                           }`}
                           placeholder="Enter first name"
                           disabled={loading}
                           autoComplete="given-name"
                         />
-                        {errors.firstName && (
-                          <p className="text-sm text-red-600 mt-1">
-                            {errors.firstName}
-                          </p>
-                        )}
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -230,23 +246,15 @@ const Login = () => {
                             errors.lastName
                               ? "border-red-500"
                               : "border-gray-300"
-                          } ${
-                            formData.lastName && !errors.lastName
-                              ? "border-green-500"
-                              : ""
                           }`}
                           placeholder="Enter last name"
                           disabled={loading}
                           autoComplete="family-name"
                         />
-                        {errors.lastName && (
-                          <p className="text-sm text-red-600 mt-1">
-                            {errors.lastName}
-                          </p>
-                        )}
                       </div>
                     </div>
 
+                    {/* Email */}
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
                         Email Address
@@ -263,23 +271,15 @@ const Login = () => {
                           }
                           className={`w-full pl-10 pr-4 py-3 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
                             errors.email ? "border-red-500" : "border-gray-300"
-                          } ${
-                            formData.email && !errors.email
-                              ? "border-green-500"
-                              : ""
                           }`}
                           placeholder="Enter email"
                           disabled={loading}
                           autoComplete="email"
                         />
                       </div>
-                      {errors.email && (
-                        <p className="text-sm text-red-600 mt-1">
-                          {errors.email}
-                        </p>
-                      )}
                     </div>
 
+                    {/* Phone */}
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
                         Phone Number
@@ -296,21 +296,12 @@ const Login = () => {
                           }
                           className={`w-full pl-10 pr-4 py-3 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
                             errors.phone ? "border-red-500" : "border-gray-300"
-                          } ${
-                            formData.phone && !errors.phone
-                              ? "border-green-500"
-                              : ""
                           }`}
                           placeholder="Enter phone number"
                           disabled={loading}
                           autoComplete="tel"
                         />
                       </div>
-                      {errors.phone && (
-                        <p className="text-sm text-red-600 mt-1">
-                          {errors.phone}
-                        </p>
-                      )}
                     </div>
                   </>
                 )}
@@ -347,9 +338,6 @@ const Login = () => {
                       className="absolute inset-y-0 right-0 pr-3 flex items-center"
                       tabIndex={-1}
                       disabled={loading}
-                      aria-label={
-                        showPassword ? "Hide password" : "Show password"
-                      }
                     >
                       {showPassword ? (
                         <FaEyeSlash className="text-gray-400 text-sm hover:text-gray-600" />
@@ -358,29 +346,9 @@ const Login = () => {
                       )}
                     </button>
                   </div>
-                  {errors.password && (
-                    <p className="text-sm text-red-600 mt-1">
-                      {errors.password}
-                    </p>
-                  )}
                 </div>
 
-                {currentPage === "login" && (
-                  <div className="flex justify-end">
-                    <button
-                      type="button"
-                      className="text-sm text-blue-600 hover:text-blue-800 font-medium"
-                      disabled={loading}
-                      onClick={() =>
-                        alert("Forgot password flow not implemented")
-                      }
-                    >
-                      Forgot Password?
-                    </button>
-                  </div>
-                )}
-
-                {/* Submit button */}
+                {/* Submit */}
                 <button
                   type="submit"
                   disabled={loading}
@@ -394,9 +362,21 @@ const Login = () => {
                     ? "Sign In"
                     : "Create Account"}
                 </button>
+                {/* ✅ Google Login Button */}
+                {currentPage === "login" && (
+                  <div className="w-full">
+                    <GoogleLogin
+                      onSuccess={handleGoogleSuccess}
+                      onError={() => setApiError("Google Login Failed")}
+                      size="large"
+                      width="100%"
+                      // theme="filled_blue"
+                    />
+                  </div>
+                )}
               </form>
 
-              {/* Toggle between login and register */}
+              {/* Toggle between login/register */}
               <div className="mt-6 text-center">
                 <span className="text-sm text-gray-600">
                   {currentPage === "login"

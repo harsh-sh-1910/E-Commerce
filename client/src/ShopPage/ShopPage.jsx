@@ -21,7 +21,6 @@ const ShopPage = () => {
   const [animateId, setAnimateId] = useState(null);
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
-  console.log(filteredProducts);
 
   const [cartMsg, setCartMsg] = useState("");
   const [animateCartId, setAnimateCartId] = useState(null);
@@ -122,16 +121,6 @@ const ShopPage = () => {
   const productStatuses = [
     { label: "Product In stock" },
     { label: "Product On sale" },
-  ];
-
-  const colors = [
-    "#dbeafe",
-    "#52525b",
-    "#0f172a",
-    "#60a5fa",
-    "#e5e7eb",
-    "#fda4af",
-    "#fef3c7",
   ];
 
   useEffect(() => {

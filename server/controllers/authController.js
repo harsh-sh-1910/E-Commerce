@@ -1,27 +1,42 @@
 const User = require("../models/User");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const { OAuth2Client } = require("google-auth-library");
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
-// register user
-// desc post
+// ============================= REGISTER =============================
 const register = async (req, res) => {
   try {
     const { uName, fName, lName, email, phone, password } = req.body;
 
-    // --- Basic validation
     if (!uName || !fName || !email || !phone || !password) {
       return res.status(400).json({ error: "All fields are required" });
     }
 
-    // --- Check duplicate username
-    const existingUser = await User.findOne({ uName });
+    // --- Check duplicate username or email
+    const existingUser = await User.findOne({ $or: [{ uName }, { email }] });
     if (existingUser) {
-      return res.status(400).json({ error: "Username already exists" });
+      return res
+        .status(400)
+        .json({ error: "Username or Email already exists" });
     }
 
-    // --- Optional: Validate phone number format (10 digits)
+    // --- Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ error: "Invalid email format" });
+    }
+
+    // --- Validate phone number
     if (!/^[0-9]{10}$/.test(phone)) {
       return res.status(400).json({ error: "Invalid phone number" });
+    }
+
+    // --- Strong password (min 6 chars)
+    if (password.length < 6) {
+      return res
+        .status(400)
+        .json({ error: "Password must be at least 6 characters long" });
     }
 
     // --- Hash password
@@ -35,186 +50,238 @@ const register = async (req, res) => {
       email,
       phone,
       password: hashPass,
-      isAdmin: false, // default
+      isAdmin: false,
     });
 
     await user.save();
 
-    // --- Return success response
     res
       .status(201)
       .json({ message: "User successfully created", uName: user.uName });
   } catch (error) {
-    // --- Handle Mongo duplicate key error if unique index is enforced
     if (error.code === 11000) {
-      return res.status(400).json({ error: "Username already exists" });
+      return res
+        .status(400)
+        .json({ error: "Username or Email already exists" });
     }
     res.status(500).json({ error: error.message });
   }
 };
-
-// get all users
-// desc get
-const getAllUsers = async (req, res) => {
+const googleLogin = async (req, res) => {
   try {
-    const data = await User.find({});
+    const { token } = req.body; // frontend sends Google ID token
+    if (!token) return res.status(400).json({ error: "Google token required" });
 
-    if (!data.length) {
-      return res.status(400).json({ message: "Customer not exists" });
-    }
+    // Verify token
+    const ticket = await client.verifyIdToken({
+      idToken: token,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
 
-    res.json(data);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
+    const payload = ticket.getPayload();
+    const { sub, email, given_name, family_name } = payload;
 
-const getSingleUser = async (req, res) => {
-  try {
-    const { id } = req.params;
-    console.log(id);
-
-    const user = await User.findOne({ _id: id }).select("-password -isAdmin");
+    // --- Check if user exists
+    let user = await User.findOne({ email });
     if (!user) {
-      return res.status(404).json({ error: "User not found" });
+      // Create new user
+      user = new User({
+        uName: email.split("@")[0],
+        fName: given_name,
+        lName: family_name || "",
+        email,
+        phone: "",
+        password: "", // not required for Google login
+        isAdmin: false,
+      });
+      await user.save();
     }
 
-    res.status(200).json(user);
-    console.log(user);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-    console.log(err);
-  }
-};
-
-// update user
-// desc patch
-const updateUser = async (req, res) => {
-  try {
-    const { id } = req.params;
-
-    const user = await User.findById(id);
-
-    if (!user) {
-      return res.status(400).json({ message: "Customer not found" });
-    }
-
-    const { fName, lName, email, phone } = req.body;
-
-    user.fName = fName;
-    user.lName = lName;
-    user.email = email;
-    user.phone = phone;
-
-    await user.save();
-
-    res.status(200).json({ message: "Customer Successfully Updated" });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
-// login
-const login = async (req, res) => {
-  try {
-    const { uName, password } = req.body;
-    if (!uName || !password) {
-      return res.status(400).json({ error: "All fields are required" });
-    }
-
-    const user = await User.findOne({ uName });
-    if (!user) {
-      return res.status(400).json({ error: "Invalid Username or Password" });
-    }
-
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      return res.status(400).json({ error: "Invalid Username or Password" });
-    }
-
+    // --- Generate tokens
     const accessToken = jwt.sign(
-      {
-        id: user._id,
-        admin: user.isAdmin,
-      },
+      { id: user._id, uName: user.uName, admin: user.isAdmin },
       process.env.ACCESS_TOKEN_SECRET,
-      { expiresIn: "1y" }
+      { expiresIn: "1h" }
     );
 
     const refreshToken = jwt.sign(
-      {
-        id: user._id,
-      },
+      { id: user._id, uName: user.uName },
       process.env.REFRESH_TOKEN_SECRET,
-      { expiresIn: "1d" }
+      { expiresIn: "7d" }
     );
 
     res.cookie("jwt", refreshToken, {
       httpOnly: true,
       sameSite: "None",
       secure: true,
-      maxAge: 24 * 60 * 60 * 1000,
+      maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
-    return res.json({ accessToken });
+    return res.json({
+      message: "Google login successful",
+      accessToken,
+      user: {
+        id: user._id,
+        uName: user.uName,
+        fName: user.fName,
+        lName: user.lName,
+        email: user.email,
+        phone: user.phone,
+        isAdmin: user.isAdmin,
+      },
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
 
-// refresh
+// ============================= GET ALL USERS =============================
+const getAllUsers = async (req, res) => {
+  try {
+    const data = await User.find({}).select("-password");
+    if (!data.length) {
+      return res.status(404).json({ message: "No users found" });
+    }
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// ============================= GET SINGLE USER =============================
+const getSingleUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const user = await User.findById(id).select("-password -isAdmin");
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+    res.status(200).json(user);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+// ============================= UPDATE USER =============================
+const updateUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { fName, lName, email, phone } = req.body;
+
+    const user = await User.findById(id);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    user.fName = fName || user.fName;
+    user.lName = lName || user.lName;
+    user.email = email || user.email;
+    user.phone = phone || user.phone;
+
+    await user.save();
+    res.status(200).json({ message: "User successfully updated" });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// ============================= LOGIN =============================
+const login = async (req, res) => {
+  try {
+    const { uName, email, password } = req.body;
+    if ((!uName && !email) || !password) {
+      return res
+        .status(400)
+        .json({ error: "Username/Email and password are required" });
+    }
+
+    const user = await User.findOne({ $or: [{ uName }, { email }] });
+    if (!user) {
+      return res
+        .status(400)
+        .json({ error: "Invalid Username/Email or Password" });
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res
+        .status(400)
+        .json({ error: "Invalid Username/Email or Password" });
+    }
+
+    const accessToken = jwt.sign(
+      { id: user._id, admin: user.isAdmin },
+      process.env.ACCESS_TOKEN_SECRET,
+      { expiresIn: "1h" }
+    );
+
+    const refreshToken = jwt.sign(
+      { id: user._id },
+      process.env.REFRESH_TOKEN_SECRET,
+      { expiresIn: "7d" }
+    );
+
+    res.cookie("jwt", refreshToken, {
+      httpOnly: true,
+      sameSite: "None",
+      secure: true,
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    });
+
+    return res.json({
+      message: "Login successful",
+      accessToken,
+      user: {
+        id: user._id,
+        uName: user.uName,
+        fName: user.fName,
+        lName: user.lName,
+        email: user.email,
+        phone: user.phone,
+        isAdmin: user.isAdmin,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// ============================= REFRESH =============================
 const refresh = async (req, res) => {
   try {
-    const { cookies } = req;
-
-    if (!cookies) {
-      return res.status(401).json({ message: "Unauthorized" });
-    }
-    const refreshToken = cookies.jwt;
-
-    if (!refreshToken) {
-      return res.status(401).json({ message: "Unauthorized" });
-    }
+    const refreshToken = req.cookies?.jwt;
+    if (!refreshToken) return res.status(401).json({ message: "Unauthorized" });
 
     jwt.verify(
       refreshToken,
       process.env.REFRESH_TOKEN_SECRET,
       async (err, decoded) => {
-        try {
-          if (err) {
-            return res.status(401).json({ message: "Unauthorized" });
-          }
+        if (err) return res.status(403).json({ message: "Forbidden" });
 
-          const foundUser = await User.findById(decoded.id);
+        const foundUser = await User.findById(decoded.id);
+        if (!foundUser)
+          return res.status(404).json({ message: "User not found" });
 
-          const accessToken = jwt.sign(
-            { id: foundUser._id, admin: foundUser.isAdmin },
-            process.env.ACCESS_TOKEN_SECRET,
-            { expiresIn: "15m" }
-          );
-          res.json(accessToken);
-        } catch (error) {
-          res.status(500).json({ message: "Server Error" });
-        }
+        const accessToken = jwt.sign(
+          { id: foundUser._id, admin: foundUser.isAdmin },
+          process.env.ACCESS_TOKEN_SECRET,
+          { expiresIn: "1h" }
+        );
+        res.json({ accessToken });
       }
     );
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ error: error.message });
   }
 };
-// logout
+
+// ============================= LOGOUT =============================
 const logout = async (req, res) => {
   try {
-    const cookies = req.cookies;
-
-    if (!cookies) {
-      return res.sendStatus(204);
-    }
-
-    res.clearCookie("jwt", { httpOnly: true, sameSite: "none", secure: true });
-
-    res.json({ message: "Cookie Cleared Successfully" });
+    res.clearCookie("jwt", { httpOnly: true, sameSite: "None", secure: true });
+    res.json({ message: "Logged out successfully" });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ error: error.message });
   }
 };
 
@@ -224,6 +291,7 @@ module.exports = {
   getSingleUser,
   updateUser,
   login,
+  googleLogin,
   refresh,
   logout,
 };

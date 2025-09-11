@@ -34,7 +34,7 @@ const SingleProduct = () => {
   const [lensY, setLensY] = useState(0);
   const imgRef = useRef(null);
   const [selectedAttributes, setSelectedAttributes] = useState({});
-  const [variation, setVariation] = useState();
+  const [variation, setVariation] = useState(null);
   const [index, setIndex] = useState(0);
 
   const [isWishlisted, setIsWishlisted] = useState(false);
@@ -204,7 +204,9 @@ const SingleProduct = () => {
       const data = await response.json();
 
       setProduct(data);
-      setVariation(data.variations);
+      if (data.variations[0].attribute) {
+        setVariation(data.variations);
+      }
       console.log(data.variations);
 
       // Ensure gallery is always an array
@@ -252,24 +254,49 @@ const SingleProduct = () => {
             <div className="flex gap-4">
               {/* Thumbnail Gallery */}
               <div className="flex flex-col gap-3">
-                {[...productImages, ...variation[0].options[index].images].map(
-                  (thumb, index) => (
-                    <div
-                      key={index}
-                      className={`w-16 h-16 border-2 rounded-lg overflow-hidden cursor-pointer transition-all ${
-                        selectedImage === index
-                          ? "border-blue-500"
-                          : "border-gray-200 hover:border-gray-300"
-                      }`}
-                      onClick={() => setSelectedImage(index)}
-                    >
-                      <img
-                        src={`${URL}/${thumb}`}
-                        alt={`Product view ${index + 1}`}
-                        className="w-full h-full object-contain object-top"
-                      />
-                    </div>
-                  )
+                {variation ? (
+                  <>
+                    {[
+                      ...productImages,
+                      ...variation[0].options[index].images,
+                    ].map((thumb, index) => (
+                      <div
+                        key={index}
+                        className={`w-16 h-16 border-2 rounded-lg overflow-hidden cursor-pointer transition-all ${
+                          selectedImage === index
+                            ? "border-blue-500"
+                            : "border-gray-200 hover:border-gray-300"
+                        }`}
+                        onClick={() => setSelectedImage(index)}
+                      >
+                        <img
+                          src={`${URL}/${thumb}`}
+                          alt={`Product view ${index + 1}`}
+                          className="w-full h-full object-contain object-top"
+                        />
+                      </div>
+                    ))}
+                  </>
+                ) : (
+                  <>
+                    {[...productImages].map((thumb, index) => (
+                      <div
+                        key={index}
+                        className={`w-16 h-16 border-2 rounded-lg overflow-hidden cursor-pointer transition-all ${
+                          selectedImage === index
+                            ? "border-blue-500"
+                            : "border-gray-200 hover:border-gray-300"
+                        }`}
+                        onClick={() => setSelectedImage(index)}
+                      >
+                        <img
+                          src={`${URL}/${thumb}`}
+                          alt={`Product view ${index + 1}`}
+                          className="w-full h-full object-contain object-top"
+                        />
+                      </div>
+                    ))}
+                  </>
                 )}
               </div>
 
@@ -280,16 +307,25 @@ const SingleProduct = () => {
                 onMouseLeave={() => setShowZoom(false)}
                 onMouseMove={handleMouseMove}
               >
-                <img
-                  ref={imgRef}
-                  src={`${URL}/${
-                    [...productImages, ...variation[0].options[index].images][
-                      selectedImage
-                    ]
-                  }`}
-                  alt="Main product"
-                  className="w-full h-full object-contain"
-                />
+                {variation ? (
+                  <img
+                    ref={imgRef}
+                    src={`${URL}/${
+                      [...productImages, ...variation[0].options[index].images][
+                        selectedImage
+                      ]
+                    }`}
+                    alt="Main product"
+                    className="w-full h-full object-contain"
+                  />
+                ) : (
+                  <img
+                    ref={imgRef}
+                    src={`${URL}/${[...productImages][selectedImage]}`}
+                    alt="Main product"
+                    className="w-full h-full object-contain"
+                  />
+                )}
 
                 {/* Image Navigation Arrows */}
                 <button
@@ -329,9 +365,15 @@ const SingleProduct = () => {
                 <p className="text-teal-600 font-medium text-sm mb-2 cursor-pointer hover:underline">
                   {product.categoryName}
                 </p>
-                <h1 className="text-3xl font-bold text-gray-900 mb-3">
-                  {variation[0].options[index].productName}
-                </h1>
+                {variation ? (
+                  <h1 className="text-3xl font-bold text-gray-900 mb-3">
+                    {variation[0].options[index].productName}
+                  </h1>
+                ) : (
+                  <h1 className="text-3xl font-bold text-gray-900 mb-3">
+                    {product.name}
+                  </h1>
+                )}
 
                 {/* Rating and Reviews */}
                 <div className="flex items-center gap-3 mb-4">
@@ -358,36 +400,53 @@ const SingleProduct = () => {
                   <span className="text-gray-400">|</span>
 
                   {/* Stock Status */}
-                  <span
-                    className={`text-sm font-medium ${
-                      variation[0].options[index].stock > 0
-                        ? "text-green-500"
-                        : "text-red-500"
-                    }`}
-                  >
-                    {variation[0].options[index].stock > 0
-                      ? "In Stock"
-                      : "Out of Stock"}
-                  </span>
+                  {variation && (
+                    <span
+                      className={`text-sm font-medium ${
+                        variation[0].options[index].stock > 0
+                          ? "text-green-500"
+                          : "text-red-500"
+                      }`}
+                    >
+                      {variation[0].options[index].stock > 0
+                        ? "In Stock"
+                        : "Out of Stock"}
+                    </span>
+                  )}
                 </div>
               </div>
 
               {/* Price Section */}
-              <div className="border-b border-gray-200 pb-6">
-                <div className="flex items-center gap-3 mb-2">
-                  <span className="text-3xl font-bold text-gray-900">
-                    &#8377;{variation[0].options[index].price}
-                  </span>
-                  <span className="text-xl text-gray-500 line-through">
-                    &#8377;{product.pricing.mrp}
-                  </span>
+              {variation ? (
+                <div className="border-b border-gray-200 pb-6">
+                  <div className="flex items-center gap-3 mb-2">
+                    <span className="text-3xl font-bold text-gray-900">
+                      &#8377;{variation[0].options[index].price}
+                    </span>
+                    <span className="text-xl text-gray-500 line-through">
+                      &#8377;{product.pricing.mrp}
+                    </span>
+                  </div>
                 </div>
-              </div>
+              ) : (
+                <>
+                  <div className="border-b border-gray-200 pb-6">
+                    <div className="flex items-center gap-3 mb-2">
+                      <span className="text-3xl font-bold text-gray-900">
+                        &#8377;{product.pricing.salePrice}
+                      </span>
+                      <span className="text-xl text-gray-500 line-through">
+                        &#8377;{product.pricing.mrp}
+                      </span>
+                    </div>
+                  </div>
+                </>
+              )}
 
               {product.variations.map((variation, idx) => (
                 <div key={variation.attribute} className="mb-6">
                   <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                    <span>{variation.attribute}:</span>
+                    <span>{variation.attribute}</span>
 
                     {selectedAttributes[variation.attribute] &&
                       variation.attribute.toLowerCase() === "color" && (
@@ -572,11 +631,14 @@ const SingleProduct = () => {
               <span
                 className=" absolute right-0 top-0 w-[50%] h-[80vh] border border-gray-200 rounded-xl overflow-hidden z-50 bg-white shadow-xl hidden lg:block"
                 style={{
-                  backgroundImage: `url('${URL}/${
-                    [...productImages, ...variation[0].options[index].images][
-                      selectedImage
-                    ]
-                  }')`,
+                  backgroundImage: variation
+                    ? `url('${URL}/${
+                        [
+                          ...productImages,
+                          ...variation[0].options[index].images,
+                        ][selectedImage]
+                      }')`
+                    : `url('${URL}/${[...productImages][selectedImage]}')`,
                   backgroundRepeat: "no-repeat",
                   backgroundSize: "200%", // Zoom level
                   backgroundPosition: `${
