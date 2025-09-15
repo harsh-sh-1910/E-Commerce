@@ -14,10 +14,9 @@ const Footer = () => {
       <div className="max-w-screen-xl mx-auto grid grid-cols-1 md:grid-cols-5 gap-8 relative">
         {/* Column 1: Logo and Contact Info */}
         <div className="space-y-4">
-          <Link to="/">
-            {" "}
+          <a href="/">
             <img src="/Logo-footer.svg" className="bg-black" />
-          </Link>
+          </a>
           <p className="text-gray-400 mt-2">Call us 24/7</p>
           <h2 className="text-xl font-semibold">+1 1800 9797 6000</h2>
           <p className="text-gray-400">

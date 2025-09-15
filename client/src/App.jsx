@@ -21,6 +21,7 @@ import UserAddress from "./UserAddress/UserAddress";
 import UserReview from "./UserReview/UserReview";
 import UpdateUser from "./UpdateUser/UpdateUser";
 import UserOrders from "./UserOrders/UserOrders";
+import ScrollTop from "./ScrollTop/ScrollTop";
 
 import { LocationProvider } from "./LocationContent/LocationContent";
 
@@ -30,6 +31,7 @@ const App = () => {
       <LocationProvider>
         <div>
           <Router>
+            <ScrollTop />
             <Header />
             <Routes>
               <Route path="/" element={<MainPage />} />

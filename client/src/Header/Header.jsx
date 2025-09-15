@@ -62,6 +62,10 @@ const Header = () => {
 
   const [cartItems, setCartItems] = useState([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [productOptions, setProductOptions] = useState([]);
+
+  const [index, setIndex] = useState(0);
+  const [animating, setAnimating] = useState(false);
 
   console.log(showAll);
   const products = [
@@ -173,6 +177,32 @@ const Header = () => {
     };
 
     fetchCategories();
+  }, []);
+  const searchProduct = [
+    "Accessories",
+    "Smartphones",
+    "Electronics",
+    "Speakers",
+    "Laptops",
+  ];
+  // ✅ Fetch product list
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const res = await axios.get(`${URL}/product`);
+
+        setProductOptions(res.data);
+      } catch (error) {
+        console.error("Error fetching products:", error);
+      }
+    };
+    fetchProducts();
+  }, []);
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setIndex((prev) => (prev + 1) % searchProduct.length);
+    }, 2500);
+    return () => clearInterval(interval);
   }, []);
   return (
     <div>
@@ -437,11 +467,30 @@ const Header = () => {
         <div>
           <div className="xl:w-[44%] px-2 sm:block w-full xl:absolute top-6 left-60">
             <div className="flex border rounded-md overflow-hidden w-full border-gray-300">
-              <input
-                type="text"
-                placeholder="Search Your Product"
-                className="px-4 py-2 w-full outline-none text-sm"
-              />
+              <div className="relative w-full">
+                <input
+                  type="text"
+                  placeholder="Search For"
+                  className="px-4 py-2 w-full outline-none"
+                />
+
+                {/* Animated words wrapper */}
+                <div className="absolute left-[96px] top-[17.5px] w-[100px] -translate-y-[10px] h-[24px] leading-[24px] overflow-hidden text-gray-500 pointer-events-none">
+                  {searchProduct.map((item, i) => (
+                    <span
+                      key={i}
+                      className={`absolute w-full transition-transform duration-700 ease-in-out
+                ${i === index ? "translate-y-0 opacity-100" : ""}
+                ${i < index ? "-translate-y-full opacity-0" : ""}
+                ${i > index ? "translate-y-full opacity-0" : ""}
+              `}
+                    >
+                      {item}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
               <button className="bg-teal-600 text-white px-4 flex items-center justify-center cursor-pointer">
                 <FaSearch />
               </button>

@@ -38,7 +38,9 @@ const MainPage = () => {
   const [deals, setDeals] = useState([]);
   const [categories, setCategories] = useState([]);
   const [products, setProducts] = useState([]);
-  const [wishlist, setWishlist] = useState([]);
+  const [wishlist, setWishlist] = useState(
+    JSON.parse(localStorage.getItem("wishlist"))
+  );
 
   const [wishlistMsg, setWishlistMsg] = useState("");
   const [cartMsg, setCartMsg] = useState("");
@@ -46,6 +48,7 @@ const MainPage = () => {
   const [animateCartId, setAnimateCartId] = useState(null);
   const [quickViewProduct, setQuickViewProduct] = useState(null);
   const [selectedAttributes, setSelectedAttributes] = useState({});
+  const [loading, setLoading] = useState(true);
   const handleAddToWishlist = (product) => {
     const selectedItem = {
       _id: product._id,
@@ -74,7 +77,9 @@ const MainPage = () => {
     localStorage.setItem("wishlist", JSON.stringify(existingWishlist));
     window.dispatchEvent(new Event("wishlistUpdated"));
 
-    setAnimateCartId(item._id);
+    setAnimateCartId(product._id);
+    setAnimateId(product._id);
+    setTimeout(() => setAnimateId(null), 300);
     setTimeout(() => setAnimateCartId(null), 500);
     setTimeout(() => setCartMsg(""), 2000);
   };
@@ -207,22 +212,25 @@ const MainPage = () => {
   useEffect(() => {
     const fetchDeals = async () => {
       try {
+        setLoading(true);
+
+        const startTime = Date.now();
         const res = await axios.get(`${URL}/deal`);
+
         const updatedDeals = res.data.map((deal) => {
           const product = deal.productName;
           const discountPercent = deal.discount;
-          console.log(res.data);
           const originalPrice = product.pricing.mrp;
+
           let price;
           if (discountPercent) {
             price =
               originalPrice -
               Math.round(originalPrice * (discountPercent / 100));
-            console.log(price);
           } else {
             price = product.pricing.salePrice;
-            console.log(price);
           }
+
           return {
             id: product._id,
             image: product.mainImage,
@@ -240,14 +248,20 @@ const MainPage = () => {
         });
 
         setDeals(updatedDeals);
-        console.log(res.data);
+
+        // ✅ Ensure skeleton stays at least 500ms
+        const elapsed = Date.now() - startTime;
+        const remaining = 500 - elapsed;
+        setTimeout(() => setLoading(false), remaining > 0 ? remaining : 0);
       } catch (err) {
         console.error("Failed to fetch deals", err);
+        setLoading(false);
       }
     };
 
     fetchDeals();
   }, []);
+
   const itemsRef = useRef([]);
   gsap.registerPlugin(ScrollTrigger);
   useEffect(() => {
@@ -345,7 +359,11 @@ const MainPage = () => {
       }
     };
     fetchProducts();
+    setLoading(false);
+    // setWishlist(JSON.parse(localStorage.getItem("wishlist")));
   }, []);
+  console.log(wishlist);
+
   return (
     <>
       <div className="py-4 px-4 lg:px-10 bg-gray-100">
@@ -589,105 +607,111 @@ const MainPage = () => {
               id="slider2"
               className="flex gap-4 overflow-x-auto scroll-smooth snap-x snap-mandatory py-4 px-2 hide-scrollbar"
             >
-              {products.map((item) => (
-                <div
-                  key={item._id}
-                  className="flex-shrink-0 w-[180px] sm:w-[200px] md:w-[220px] lg:w-[250px] bg-white p-4 rounded-lg shadow relative group snap-start"
-                >
-                  {/* Product Image */}
-                  <div className="w-full h-[200px] flex items-center justify-center relative overflow-hidden rounded-lg">
-                    <img
-                      src={`${URL}/${item.mainImage}`}
-                      alt={item.name}
-                      className="object-contain w-full h-full transition-transform duration-300 group-hover:scale-105"
-                      onMouseEnter={(e) => {
-                        if (item.gallery && item.gallery.length > 0) {
-                          e.currentTarget.src = `${URL}/${item.gallery[0]}`;
-                        }
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.src = `${URL}/${item.mainImage}`;
-                      }}
-                    />
+              {products.map((item) => {
+                const isInWishlist = wishlist.some((w) => w._id === item._id);
+                return (
+                  <Link
+                    to={`/product/${item.seo?.slug ?? ""}`}
+                    key={item._id}
+                    className="flex-shrink-0 w-[180px] sm:w-[200px] md:w-[220px] lg:w-[250px] bg-white p-4 rounded-lg shadow relative group snap-start"
+                  >
+                    {/* Product Image */}
+                    <div className="w-full h-[200px] flex items-center justify-center relative overflow-hidden rounded-lg">
+                      <img
+                        src={`${URL}/${item.mainImage}`}
+                        alt={item.name}
+                        className="object-contain w-full h-full transition-transform duration-300 group-hover:scale-105"
+                        onMouseEnter={(e) => {
+                          if (item.gallery && item.gallery.length > 0) {
+                            e.currentTarget.src = `${URL}/${item.gallery[0]}`;
+                          }
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.src = `${URL}/${item.mainImage}`;
+                        }}
+                      />
 
-                    {/* Hover Icons */}
-                    <div className="absolute flex gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300">
-                      <span className="p-2 bg-white rounded-2xl hover:bg-gray-200 shadow">
-                        <FaRegHeart
-                          className={`cursor-pointer transition-transform duration-300 ${
-                            wishlist.some((w) => w._id === item._id)
-                              ? "text-red-500" // ✅ turns red if in wishlist
-                              : "text-gray-400"
-                          }`}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            e.preventDefault();
-                            handleAddToWishlist(item);
-                          }}
-                        />
-                      </span>
+                      {/* Hover Icons */}
+                      <div className="absolute flex gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300">
+                        <span className="p-2 bg-white rounded-2xl hover:bg-gray-200 shadow">
+                          <FaRegHeart
+                            className={`cursor-pointer transition-transform duration-300 ${
+                              isInWishlist
+                                ? "text-red-500" // ✅ turns red if in wishlist
+                                : "text-gray-400"
+                            }`}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              e.preventDefault();
+                              handleAddToWishlist(item);
+                            }}
+                          />
+                        </span>
 
-                      <span className="p-2 bg-white rounded-2xl hover:bg-gray-200 shadow">
-                        <BsCart3
-                          className={`cursor-pointer transition-transform duration-300 ${
-                            isInCart(item._id)
-                              ? "text-teal-600"
-                              : "text-gray-400"
-                          }`}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            e.preventDefault();
-                            toggleCartItem(item);
-                          }}
-                        />
-                      </span>
+                        <span className="p-2 bg-white rounded-2xl hover:bg-gray-200 shadow">
+                          <BsCart3
+                            className={`cursor-pointer transition-transform duration-300 ${
+                              isInCart(item._id)
+                                ? "text-teal-600"
+                                : "text-gray-400"
+                            }`}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              e.preventDefault();
+                              toggleCartItem(item);
+                            }}
+                          />
+                        </span>
 
-                      <span className="p-2 bg-white rounded-2xl hover:bg-gray-200 shadow text-gray-400">
-                        <IoEye
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            e.preventDefault();
-                            handleViewProduct(item);
-                          }}
-                        />
+                        <span className="p-2 bg-white rounded-2xl hover:bg-gray-200 shadow text-gray-400">
+                          <IoEye
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              e.preventDefault();
+                              handleViewProduct(item);
+                            }}
+                          />
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Category */}
+                    <p className="text-sm text-gray-500 mt-3">
+                      {item.categoryName}
+                    </p>
+
+                    {/* Title (truncate if long) */}
+                    <h3 className="text-md font-medium truncate">
+                      {item.name}
+                    </h3>
+
+                    {/* Rating */}
+                    <div className="flex text-teal-600 mt-1 text-sm">
+                      {Array.from({ length: item.rating || 0 }).map((_, i) => (
+                        <FaStar key={i} />
+                      ))}
+                    </div>
+
+                    {/* Price */}
+                    <div className="mt-2 text-sm">
+                      {item.pricing?.mrp && (
+                        <span className="text-gray-400 line-through mr-2">
+                          ₹{item.pricing.mrp}
+                        </span>
+                      )}
+                      <span
+                        className={`${
+                          item.pricing?.mrp
+                            ? "text-teal-600 font-semibold"
+                            : "text-black"
+                        }`}
+                      >
+                        ₹{item.pricing?.salePrice ?? 0}
                       </span>
                     </div>
-                  </div>
-
-                  {/* Category */}
-                  <p className="text-sm text-gray-500 mt-3">
-                    {item.categoryName}
-                  </p>
-
-                  {/* Title (truncate if long) */}
-                  <h3 className="text-md font-medium truncate">{item.name}</h3>
-
-                  {/* Rating */}
-                  <div className="flex text-teal-600 mt-1 text-sm">
-                    {Array.from({ length: item.rating || 0 }).map((_, i) => (
-                      <FaStar key={i} />
-                    ))}
-                  </div>
-
-                  {/* Price */}
-                  <div className="mt-2 text-sm">
-                    {item.pricing?.mrp && (
-                      <span className="text-gray-400 line-through mr-2">
-                        ₹{item.pricing.mrp}
-                      </span>
-                    )}
-                    <span
-                      className={`${
-                        item.pricing?.mrp
-                          ? "text-teal-600 font-semibold"
-                          : "text-black"
-                      }`}
-                    >
-                      ₹{item.pricing?.salePrice ?? 0}
-                    </span>
-                  </div>
-                </div>
-              ))}
+                  </Link>
+                );
+              })}
             </div>
           </div>
         </div>
@@ -808,64 +832,81 @@ const MainPage = () => {
         {/* Left Section - Deals of the Day */}
         <div className="w-full lg:w-1/2 border-gray-200 border rounded-lg pt-5 text-xl">
           <h3 className="font-semibold text-center mb-4">Deals Of The Day</h3>
-          <div className="flex gap-4 overflow-x-auto scroll-smooth no-scrollbar pb-4 px-2">
-            {deals.map((item) => (
-              <div
-                key={item.id}
-                className="flex-shrink-0 w-[250px] bg-white shadow rounded-lg flex flex-col justify-between"
-              >
-                <div className="p-4">
-                  {/* Product Image */}
-                  <div className="w-full h-[200px] relative rounded-lg group cursor-pointer">
-                    <img
-                      src={`${URL}/${item.image}`}
-                      alt={item.title}
-                      className="w-full h-full object-contain rounded-lg"
-                    />
-                  </div>
-                  {/* Category */}
-                  <p className="text-sm text-gray-500 mt-3">{item.category}</p>
-
-                  {/* Title */}
-                  <h3 className="text-md font-semibold text-gray-800">
-                    {item.title}
-                  </h3>
-
-                  {/* Price */}
-                  <div className="mt-2 text-sm">
-                    {item.oldPrice && (
-                      <span className="text-gray-400 line-through mr-2">
-                        &#8377;{item.oldPrice}
-                      </span>
-                    )}
-                    <span
-                      className={`${
-                        item.oldPrice
-                          ? "text-teal-600 font-semibold"
-                          : "text-black font-medium"
-                      }`}
+          <div className="flex gap-4 overflow-x-auto scroll-smooth no-scrollbar pb-4 px-2 ">
+            {loading
+              ? Array.from({ length: 3 }).map((index) => (
+                  <div
+                    key={index}
+                    className="flex-shrink-0 w-[250px] bg-white shadow rounded-lg flex flex-col justify-between animate-pulse"
+                  >
+                    <div
+                      className="p-4 flex flex-col gap-2 bg-red-500
+                     "
                     >
-                      &#8377; {item.price}
-                    </span>
+                      {/* Image skeleton */}
+                      <div className="w-full h-[200px] bg-gray-500 rounded-lg"></div>
+                      {/* Category skeleton */}
+                      <div className="w-20 h-4 bg-gray-500 rounded"></div>
+                      {/* Title skeleton */}
+                      <div className="w-full h-5 bg-gray-500 rounded"></div>
+                      {/* Price skeleton */}
+                      <div className="w-1/3 h-4 bg-gray-500 rounded"></div>
+                      {/* Availability skeleton */}
+                      <div className="w-2/3 h-3 bg-gray-500 rounded mt-1"></div>
+                    </div>
+                    {/* Time info skeleton */}
+                    <div className="mt-2 bg-gray-300 p-2 rounded h-6 w-3/4 mx-4"></div>
                   </div>
-
-                  {/* Availability & Sold */}
-                  <div className="flex justify-between mt-3">
-                    <p className="text-sm text-teal-600">
-                      <span className="text-gray-500">Available:</span>{" "}
-                      {item.available}
-                    </p>
+                ))
+              : deals.map((item) => (
+                  <div
+                    key={item.id}
+                    className="flex-shrink-0 w-[250px] bg-white shadow rounded-lg flex flex-col justify-between"
+                  >
+                    <div className="p-4">
+                      <div className="w-full h-[200px] relative rounded-lg group cursor-pointer">
+                        <img
+                          src={`${URL}/${item.image}`}
+                          alt={item.title}
+                          className="w-full h-full object-contain rounded-lg"
+                        />
+                      </div>
+                      <p className="text-sm text-gray-500 mt-3">
+                        {item.category}
+                      </p>
+                      <h3 className="text-md font-semibold text-gray-800">
+                        {item.title}
+                      </h3>
+                      <div className="mt-2 text-sm">
+                        {item.oldPrice && (
+                          <span className="text-gray-400 line-through mr-2">
+                            &#8377;{item.oldPrice}
+                          </span>
+                        )}
+                        <span
+                          className={`${
+                            item.oldPrice
+                              ? "text-teal-600 font-semibold"
+                              : "text-black font-medium"
+                          }`}
+                        >
+                          &#8377; {item.price}
+                        </span>
+                      </div>
+                      <div className="flex justify-between mt-3">
+                        <p className="text-sm text-teal-600">
+                          <span className="text-gray-500">Available:</span>{" "}
+                          {item.available}
+                        </p>
+                      </div>
+                    </div>
+                    {item.time && (
+                      <div className="mt-2 bg-gray-100 p-2 rounded text-xs text-gray-700">
+                        <p>{getRemainingTimeDetailed(item.time.end)}</p>
+                      </div>
+                    )}
                   </div>
-                </div>
-
-                {/* Time Info */}
-                {item.time && (
-                  <div className="mt-2 bg-gray-100 p-2 rounded text-xs text-gray-700">
-                    <p>{getRemainingTimeDetailed(item.time.end)}</p>
-                  </div>
-                )}
-              </div>
-            ))}
+                ))}
           </div>
         </div>
 

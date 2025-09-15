@@ -1,5 +1,10 @@
 import React, { useEffect, useRef, useState, useContext } from "react";
-import { FaStar } from "react-icons/fa";
+import {
+  FaChevronLeft,
+  FaChevronRight,
+  FaRegHeart,
+  FaStar,
+} from "react-icons/fa";
 import { IoIosArrowBack } from "react-icons/io";
 import { IoIosArrowForward } from "react-icons/io";
 import { Link, useNavigate, useParams } from "react-router";
@@ -10,6 +15,8 @@ import { jwtDecode } from "jwt-decode";
 import dayjs from "dayjs";
 
 import { LocationContext } from "../LocationContent/LocationContent";
+import { BsCart3 } from "react-icons/bs";
+import { IoEye } from "react-icons/io5";
 
 const SingleProduct = () => {
   const URL = "https://e-commerce-4pcq.onrender.com";
@@ -24,6 +31,8 @@ const SingleProduct = () => {
   const [review, setReview] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [productImages, setProductImages] = useState(null);
+  const [products, setProducts] = useState([]);
+
   const [newReview, setNewReview] = useState({
     name: decodedUser?.name || "",
     comment: "",
@@ -38,6 +47,13 @@ const SingleProduct = () => {
   const [index, setIndex] = useState(0);
 
   const [isWishlisted, setIsWishlisted] = useState(false);
+  const [wishlist, setWishlist] = useState([]);
+
+  const [wishlistMsg, setWishlistMsg] = useState("");
+  const [cartMsg, setCartMsg] = useState("");
+  const [animateId, setAnimateId] = useState(null);
+  const [animateCartId, setAnimateCartId] = useState(null);
+  const [quickViewProduct, setQuickViewProduct] = useState(null);
   const { location, classification, error, classifyByPincode } =
     useContext(LocationContext);
   const [manualPincode, setManualPincode] = useState("");
@@ -48,7 +64,71 @@ const SingleProduct = () => {
     Zonal: "4-6 days",
     International: "7-14 days",
   };
+  const handleAddToWishlisted = (product) => {
+    const selectedItem = {
+      _id: product._id,
+      title: product.name,
+      price: product.pricing?.salePrice,
+      image: `${URL}/${product.mainImage}`,
+    };
 
+    // Get existing wishlist from localStorage
+    const existingWishlist = JSON.parse(localStorage.getItem("wishlist")) || [];
+    const itemIndex = existingWishlist.findIndex(
+      (item) => item._id === selectedItem._id
+    );
+
+    let isAdded = false;
+    if (itemIndex === -1) {
+      existingWishlist.push(selectedItem);
+      setWishlistMsg(`${selectedItem.title} added to wishlist`);
+      isAdded = true;
+    } else {
+      existingWishlist.splice(itemIndex, 1);
+      setWishlistMsg(`${selectedItem.title} removed from wishlist`);
+    }
+
+    // Save updated wishlist
+    localStorage.setItem("wishlist", JSON.stringify(existingWishlist));
+    window.dispatchEvent(new Event("wishlistUpdated"));
+
+    setAnimateCartId(item._id);
+    setTimeout(() => setAnimateCartId(null), 500);
+    setTimeout(() => setCartMsg(""), 2000);
+  };
+
+  const toggleCartItem = (product) => {
+    const cart = JSON.parse(localStorage.getItem("cart")) || [];
+    const index = cart.findIndex((item) => item._id === product._id);
+
+    if (index !== -1) {
+      cart.splice(index, 1);
+      setCartMsg(`${product.name} removed from cart`);
+    } else {
+      cart.push({ ...product, quantity: 1 });
+      setCartMsg(`${product.name} added to cart`);
+    }
+
+    localStorage.setItem("cart", JSON.stringify(cart));
+
+    setAnimateCartId(product._id);
+    setTimeout(() => setAnimateCartId(null), 300);
+
+    setTimeout(() => setCartMsg(""), 2000);
+    window.dispatchEvent(new Event("cartUpdated"));
+  };
+  const isInCart = (id) => {
+    let cart = JSON.parse(localStorage.getItem("cart")) || [];
+    return cart.some((c) => c._id === id);
+  };
+
+  const handleViewProduct = (item) => {
+    setQuickViewProduct(item);
+  };
+
+  const closeQuickView = () => {
+    setQuickViewProduct(null);
+  };
   const handleManualCheck = () => {
     const result = classifyByPincode(manualPincode);
     setManualClassification(result); // Update classification
@@ -243,6 +323,18 @@ const SingleProduct = () => {
 
     getReviews();
   }, [product]);
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const res = await axios.get(`${URL}/product/`);
+        setProducts(res.data);
+        console.log(res.data);
+      } catch (error) {
+        console.error("Error fetching products:", error);
+      }
+    };
+    fetchProducts();
+  }, []);
 
   if (product)
     return (
@@ -872,6 +964,140 @@ const SingleProduct = () => {
                   </div>
                 </div>
               )}
+            </div>
+            <div className="relative">
+              <h2 className="text-4xl font-bold">Similar Products </h2>
+              {/* Left Button */}
+              <button
+                onClick={() => {
+                  document
+                    .getElementById("slider2")
+                    .scrollBy({ left: -300, behavior: "smooth" });
+                }}
+                className="absolute left-2 top-1/2 -translate-y-1/2 bg-white shadow-lg p-2 rounded-full z-10 hover:bg-gray-100"
+              >
+                <FaChevronLeft className="text-gray-700" />
+              </button>
+
+              {/* Slider Container */}
+              <div
+                id="slider2"
+                className="flex gap-4 overflow-x-auto scroll-smooth snap-x snap-mandatory py-4 px-2 hide-scrollbar"
+              >
+                {products.map((item) => (
+                  <Link
+                    to={`/product/${item.seo?.slug ?? ""}`}
+                    key={item._id}
+                    className="flex-shrink-0 w-[180px] sm:w-[200px] md:w-[220px] lg:w-[250px] bg-white p-4 rounded-lg shadow relative group snap-start"
+                  >
+                    {/* Product Image */}
+                    <div className="w-full h-[200px] flex items-center justify-center relative overflow-hidden rounded-lg">
+                      <img
+                        src={`${URL}/${item.mainImage}`}
+                        alt={item.name}
+                        className="object-contain w-full h-full transition-transform duration-300 group-hover:scale-105"
+                        onMouseEnter={(e) => {
+                          if (item.gallery && item.gallery.length > 0) {
+                            e.currentTarget.src = `${URL}/${item.gallery[0]}`;
+                          }
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.src = `${URL}/${item.mainImage}`;
+                        }}
+                      />
+                      {/* Hover Icons */}
+                      <div className="absolute flex gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300">
+                        <span className="p-2 bg-white rounded-2xl hover:bg-gray-200 shadow">
+                          <FaRegHeart
+                            className={`cursor-pointer transition-transform duration-300 ${
+                              wishlist.some((w) => w._id === item._id)
+                                ? "text-red-500" // ✅ turns red if in wishlist
+                                : "text-gray-400"
+                            }`}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              e.preventDefault();
+                              handleAddToWishlisted(item);
+                            }}
+                          />
+                        </span>
+
+                        <span className="p-2 bg-white rounded-2xl hover:bg-gray-200 shadow">
+                          <BsCart3
+                            className={`cursor-pointer transition-transform duration-300 ${
+                              isInCart(item._id)
+                                ? "text-teal-600"
+                                : "text-gray-400"
+                            }`}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              e.preventDefault();
+                              toggleCartItem(item);
+                            }}
+                          />
+                        </span>
+
+                        <span className="p-2 bg-white rounded-2xl hover:bg-gray-200 shadow text-gray-400">
+                          <IoEye
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              e.preventDefault();
+                              handleViewProduct(item);
+                            }}
+                          />
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Category */}
+                    <p className="text-sm text-gray-500 mt-3">
+                      {item.categoryName}
+                    </p>
+
+                    {/* Title */}
+                    <h3 className="text-md font-medium truncate">
+                      {item.name}
+                    </h3>
+
+                    {/* Rating */}
+                    <div className="flex text-teal-600 mt-1 text-sm">
+                      {Array.from({ length: item.rating || 0 }).map((_, i) => (
+                        <FaStar key={i} />
+                      ))}
+                    </div>
+
+                    {/* Price */}
+                    <div className="mt-2 text-sm">
+                      {item.pricing?.mrp && (
+                        <span className="text-gray-400 line-through mr-2">
+                          ₹{item.pricing.mrp}
+                        </span>
+                      )}
+                      <span
+                        className={`${
+                          item.pricing?.mrp
+                            ? "text-teal-600 font-semibold"
+                            : "text-black"
+                        }`}
+                      >
+                        ₹{item.pricing?.salePrice ?? 0}
+                      </span>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+
+              {/* Right Button */}
+              <button
+                onClick={() => {
+                  document
+                    .getElementById("slider2")
+                    .scrollBy({ left: 300, behavior: "smooth" });
+                }}
+                className="absolute right-2 top-1/2 -translate-y-1/2 bg-white shadow-lg p-2 rounded-full z-10 hover:bg-gray-100"
+              >
+                <FaChevronRight className="text-gray-700" />
+              </button>
             </div>
           </div>
         </div>

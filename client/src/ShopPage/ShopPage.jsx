@@ -21,7 +21,6 @@ const ShopPage = () => {
   const [animateId, setAnimateId] = useState(null);
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
-
   const [cartMsg, setCartMsg] = useState("");
   const [animateCartId, setAnimateCartId] = useState(null);
   const [quickViewProduct, setQuickViewProduct] = useState(null);

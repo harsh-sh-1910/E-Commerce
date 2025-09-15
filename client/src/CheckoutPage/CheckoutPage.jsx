@@ -157,14 +157,14 @@ const CheckoutPage = () => {
               <div className="flex justify-between items-center text-sm">
                 <span className="text-gray-600">Subtotal</span>
                 <span className="text-gray-900">
-                  ${calculateSubtotal().toFixed(2)}
+                  &#8377;{calculateSubtotal().toFixed(2)}
                 </span>
               </div>
 
               <div className="border-t border-gray-200 pt-4">
                 <div className="flex justify-between items-center text-lg font-bold text-gray-900">
                   <span>Total</span>
-                  <span>${calculateSubtotal().toFixed(2)}</span>
+                  <span>&#8377;{calculateSubtotal().toFixed(2)}</span>
                 </div>
               </div>
             </div>
