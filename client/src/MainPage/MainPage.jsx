@@ -48,7 +48,11 @@ const MainPage = () => {
   const [animateCartId, setAnimateCartId] = useState(null);
   const [quickViewProduct, setQuickViewProduct] = useState(null);
   const [selectedAttributes, setSelectedAttributes] = useState({});
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState({
+    product: true,
+  });
+  const [dealLoading, setDealLoading] = useState(true);
+  const [catLoading, setCatLoading] = useState(true);
   const handleAddToWishlist = (product) => {
     const selectedItem = {
       _id: product._id,
@@ -208,12 +212,9 @@ const MainPage = () => {
 
     return `${days} days ${hours} hours ${minutes} minutes left`;
   }
-
   useEffect(() => {
     const fetchDeals = async () => {
       try {
-        setLoading(true);
-
         const startTime = Date.now();
         const res = await axios.get(`${URL}/deal`);
 
@@ -249,13 +250,11 @@ const MainPage = () => {
 
         setDeals(updatedDeals);
 
-        // ✅ Ensure skeleton stays at least 500ms
-        const elapsed = Date.now() - startTime;
-        const remaining = 500 - elapsed;
-        setTimeout(() => setLoading(false), remaining > 0 ? remaining : 0);
+        // setLoading({ ...loading, deals: false });
+        // console.log(loading);
+        setDealLoading(false);
       } catch (err) {
         console.error("Failed to fetch deals", err);
-        setLoading(false);
       }
     };
 
@@ -340,6 +339,11 @@ const MainPage = () => {
       try {
         const res = await axios.get(`${URL}/category/`);
         setCategories(res.data);
+        // setLoading({ ...loading, category: false });
+        // console.log(loading);
+        setCatLoading(false);
+        console.log(catLoading);
+
         console.log(res.data);
       } catch (err) {
         console.log(err);
@@ -353,13 +357,15 @@ const MainPage = () => {
       try {
         const res = await axios.get(`${URL}/product/`);
         setProducts(res.data);
+        setLoading({ ...loading, product: false });
+        console.log(loading);
         console.log(res.data);
       } catch (error) {
         console.error("Error fetching products:", error);
       }
     };
     fetchProducts();
-    setLoading(false);
+
     // setWishlist(JSON.parse(localStorage.getItem("wishlist")));
   }, []);
   console.log(wishlist);
@@ -561,20 +567,37 @@ const MainPage = () => {
           id="slider"
         >
           <div className="flex gap-6 w-max">
-            {categories.map((cat, index) => (
-              <div
-                key={index}
-                className="flex flex-col items-center bg-gray-50 shadow-sm rounded-xl p-6 min-w-[160px] hover:shadow-md transition"
-              >
-                <img
-                  src={`${URL}/${encodeURI(cat.image.replaceAll("\\", "/"))}`}
-                  alt={cat.title || cat.name}
-                  className="w-60 h-50 object-contain mb-4 hover:scale-110 transition-transform"
-                />
-                <h3 className="text-md font-medium">{cat.name}</h3>
-                <p className="text-sm text-center text-gray-500">Products</p>
-              </div>
-            ))}
+            {loading.category
+              ? // 🔹 Skeleton placeholders
+                Array.from({ length: 6 }).map((_, index) => (
+                  <div
+                    key={index}
+                    className="flex flex-col items-center bg-gray-50 shadow-sm rounded-xl p-6 min-w-[160px] animate-pulse"
+                  >
+                    <div className="w-50 h-50 bg-gray-200 rounded-md mb-4"></div>
+                    <div className="w-24 h-4 bg-gray-200 rounded mb-2"></div>
+                    <div className="w-16 h-3 bg-gray-200 rounded"></div>
+                  </div>
+                ))
+              : // 🔹 Real categories
+                categories.map((cat, index) => (
+                  <div
+                    key={index}
+                    className="flex flex-col items-center bg-gray-50 shadow-sm rounded-xl p-6 min-w-[160px] hover:shadow-md transition"
+                  >
+                    <img
+                      src={`${URL}/${encodeURI(
+                        cat.image.replaceAll("\\", "/")
+                      )}`}
+                      alt={cat.title || cat.name}
+                      className="w-50 h-50 object-contain mb-4 hover:scale-110 transition-transform"
+                    />
+                    <h3 className="text-md font-medium">{cat.name}</h3>
+                    <p className="text-sm text-center text-gray-500">
+                      Products
+                    </p>
+                  </div>
+                ))}
           </div>
         </div>
       </div>
@@ -607,111 +630,127 @@ const MainPage = () => {
               id="slider2"
               className="flex gap-4 overflow-x-auto scroll-smooth snap-x snap-mandatory py-4 px-2 hide-scrollbar"
             >
-              {products.map((item) => {
-                const isInWishlist = wishlist.some((w) => w._id === item._id);
-                return (
-                  <Link
-                    to={`/product/${item.seo?.slug ?? ""}`}
-                    key={item._id}
-                    className="flex-shrink-0 w-[180px] sm:w-[200px] md:w-[220px] lg:w-[250px] bg-white p-4 rounded-lg shadow relative group snap-start"
-                  >
-                    {/* Product Image */}
-                    <div className="w-full h-[200px] flex items-center justify-center relative overflow-hidden rounded-lg">
-                      <img
-                        src={`${URL}/${item.mainImage}`}
-                        alt={item.name}
-                        className="object-contain w-full h-full transition-transform duration-300 group-hover:scale-105"
-                        onMouseEnter={(e) => {
-                          if (item.gallery && item.gallery.length > 0) {
-                            e.currentTarget.src = `${URL}/${item.gallery[0]}`;
-                          }
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.src = `${URL}/${item.mainImage}`;
-                        }}
-                      />
-
-                      {/* Hover Icons */}
-                      <div className="absolute flex gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300">
-                        <span className="p-2 bg-white rounded-2xl hover:bg-gray-200 shadow">
-                          <FaRegHeart
-                            className={`cursor-pointer transition-transform duration-300 ${
-                              isInWishlist
-                                ? "text-red-500" // ✅ turns red if in wishlist
-                                : "text-gray-400"
-                            }`}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              e.preventDefault();
-                              handleAddToWishlist(item);
-                            }}
-                          />
-                        </span>
-
-                        <span className="p-2 bg-white rounded-2xl hover:bg-gray-200 shadow">
-                          <BsCart3
-                            className={`cursor-pointer transition-transform duration-300 ${
-                              isInCart(item._id)
-                                ? "text-teal-600"
-                                : "text-gray-400"
-                            }`}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              e.preventDefault();
-                              toggleCartItem(item);
-                            }}
-                          />
-                        </span>
-
-                        <span className="p-2 bg-white rounded-2xl hover:bg-gray-200 shadow text-gray-400">
-                          <IoEye
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              e.preventDefault();
-                              handleViewProduct(item);
-                            }}
-                          />
-                        </span>
-                      </div>
+              {loading.product
+                ? // ✅ Skeleton Placeholders
+                  Array.from({ length: 6 }).map((_, index) => (
+                    <div
+                      key={index}
+                      className="flex-shrink-0 w-[180px] sm:w-[200px] md:w-[220px] lg:w-[250px] bg-white p-4 rounded-lg shadow relative snap-start animate-pulse"
+                    >
+                      <div className="w-full h-[200px] bg-gray-200 rounded-lg" />
+                      <div className="mt-3 h-4 bg-gray-200 rounded w-1/3" />
+                      <div className="mt-2 h-5 bg-gray-200 rounded w-2/3" />
+                      <div className="mt-2 h-4 bg-gray-200 rounded w-1/2" />
+                      <div className="mt-3 h-5 bg-gray-200 rounded w-1/4" />
                     </div>
-
-                    {/* Category */}
-                    <p className="text-sm text-gray-500 mt-3">
-                      {item.categoryName}
-                    </p>
-
-                    {/* Title (truncate if long) */}
-                    <h3 className="text-md font-medium truncate">
-                      {item.name}
-                    </h3>
-
-                    {/* Rating */}
-                    <div className="flex text-teal-600 mt-1 text-sm">
-                      {Array.from({ length: item.rating || 0 }).map((_, i) => (
-                        <FaStar key={i} />
-                      ))}
-                    </div>
-
-                    {/* Price */}
-                    <div className="mt-2 text-sm">
-                      {item.pricing?.mrp && (
-                        <span className="text-gray-400 line-through mr-2">
-                          ₹{item.pricing.mrp}
-                        </span>
-                      )}
-                      <span
-                        className={`${
-                          item.pricing?.mrp
-                            ? "text-teal-600 font-semibold"
-                            : "text-black"
-                        }`}
+                  ))
+                : // ✅ Actual Products
+                  products.map((item) => {
+                    return (
+                      <Link
+                        to={`/product/${item.seo?.slug ?? ""}`}
+                        key={item._id}
+                        className="flex-shrink-0 w-[180px] sm:w-[200px] md:w-[220px] lg:w-[250px] bg-white p-4 rounded-lg shadow relative group snap-start"
                       >
-                        ₹{item.pricing?.salePrice ?? 0}
-                      </span>
-                    </div>
-                  </Link>
-                );
-              })}
+                        {/* Product Image */}
+                        <div className="w-full h-[200px] flex items-center justify-center relative overflow-hidden rounded-lg">
+                          <img
+                            src={`${URL}/${item.mainImage}`}
+                            alt={item.name}
+                            className="object-contain w-full h-full transition-transform duration-300 group-hover:scale-105"
+                            onMouseEnter={(e) => {
+                              if (item.gallery && item.gallery.length > 0) {
+                                e.currentTarget.src = `${URL}/${item.gallery[0]}`;
+                              }
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.src = `${URL}/${item.mainImage}`;
+                            }}
+                          />
+
+                          {/* Hover Icons */}
+                          <div className="absolute flex gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300">
+                            <span className="p-2 bg-white rounded-2xl hover:bg-gray-200 shadow">
+                              <FaRegHeart
+                                className={`cursor-pointer transition-transform duration-300 ${
+                                  wishlist?.some((w) => w._id === item._id)
+                                    ? "text-red-500"
+                                    : "text-gray-400"
+                                }`}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  e.preventDefault();
+                                  handleAddToWishlist(item);
+                                }}
+                              />
+                            </span>
+
+                            <span className="p-2 bg-white rounded-2xl hover:bg-gray-200 shadow">
+                              <BsCart3
+                                className={`cursor-pointer transition-transform duration-300 ${
+                                  isInCart(item._id)
+                                    ? "text-teal-600"
+                                    : "text-gray-400"
+                                }`}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  e.preventDefault();
+                                  toggleCartItem(item);
+                                }}
+                              />
+                            </span>
+
+                            <span className="p-2 bg-white rounded-2xl hover:bg-gray-200 shadow text-gray-400">
+                              <IoEye
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  e.preventDefault();
+                                  handleViewProduct(item);
+                                }}
+                              />
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Category */}
+                        <p className="text-sm text-gray-500 mt-3">
+                          {item.categoryName}
+                        </p>
+
+                        {/* Title */}
+                        <h3 className="text-md font-medium truncate">
+                          {item.name}
+                        </h3>
+
+                        {/* Rating */}
+                        <div className="flex text-teal-600 mt-1 text-sm">
+                          {Array.from({ length: item.rating || 0 }).map(
+                            (_, i) => (
+                              <FaStar key={i} />
+                            )
+                          )}
+                        </div>
+
+                        {/* Price */}
+                        <div className="mt-2 text-sm">
+                          {item.pricing?.mrp && (
+                            <span className="text-gray-400 line-through mr-2">
+                              ₹{item.pricing.mrp}
+                            </span>
+                          )}
+                          <span
+                            className={`${
+                              item.pricing?.mrp
+                                ? "text-teal-600 font-semibold"
+                                : "text-black"
+                            }`}
+                          >
+                            ₹{item.pricing?.salePrice ?? 0}
+                          </span>
+                        </div>
+                      </Link>
+                    );
+                  })}
             </div>
           </div>
         </div>
@@ -833,26 +872,26 @@ const MainPage = () => {
         <div className="w-full lg:w-1/2 border-gray-200 border rounded-lg pt-5 text-xl">
           <h3 className="font-semibold text-center mb-4">Deals Of The Day</h3>
           <div className="flex gap-4 overflow-x-auto scroll-smooth no-scrollbar pb-4 px-2 ">
-            {loading
+            {loading.deals
               ? Array.from({ length: 3 }).map((index) => (
                   <div
                     key={index}
                     className="flex-shrink-0 w-[250px] bg-white shadow rounded-lg flex flex-col justify-between animate-pulse"
                   >
                     <div
-                      className="p-4 flex flex-col gap-2 bg-red-500
+                      className="p-4 flex flex-col gap-2
                      "
                     >
                       {/* Image skeleton */}
-                      <div className="w-full h-[200px] bg-gray-500 rounded-lg"></div>
+                      <div className="w-full h-[200px] bg-gray-300 rounded-lg"></div>
                       {/* Category skeleton */}
-                      <div className="w-20 h-4 bg-gray-500 rounded"></div>
+                      <div className="w-20 h-4 bg-gray-300 rounded"></div>
                       {/* Title skeleton */}
-                      <div className="w-full h-5 bg-gray-500 rounded"></div>
+                      <div className="w-full h-5 bg-gray-300 rounded"></div>
                       {/* Price skeleton */}
-                      <div className="w-1/3 h-4 bg-gray-500 rounded"></div>
+                      <div className="w-1/3 h-4 bg-gray-300 rounded"></div>
                       {/* Availability skeleton */}
-                      <div className="w-2/3 h-3 bg-gray-500 rounded mt-1"></div>
+                      <div className="w-2/3 h-3 bg-gray-300 rounded mt-1"></div>
                     </div>
                     {/* Time info skeleton */}
                     <div className="mt-2 bg-gray-300 p-2 rounded h-6 w-3/4 mx-4"></div>
@@ -1045,107 +1084,129 @@ const MainPage = () => {
 
           {/* ✅ Right Product */}
           <div className="w-full xl:w-[75%] grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {products.slice(0, 8).map((item) => {
-              return (
-                <Link
-                  to={`/product/${item.seo?.slug ?? ""}`}
-                  key={item._id}
-                  className="bg-white p-4 rounded shadow relative group min-w-0 flex flex-col"
-                >
-                  {/* Product Image */}
-                  <div className="h-[200px] flex items-center justify-center relative overflow-hidden">
-                    <img
-                      src={`${URL}/${item.mainImage}`}
-                      alt={item.name}
-                      className="object-contain w-full h-full transition-transform duration-300 group-hover:scale-105"
-                      onMouseEnter={(e) => {
-                        if (item.gallery && item.gallery.length > 0) {
-                          e.currentTarget.src = `${URL}/${item.gallery[0]}`;
-                        }
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.src = `${URL}/${item.mainImage}`;
-                      }}
-                    />
+            {loading.product
+              ? // ✅ Skeleton Placeholders
+                Array.from({ length: 8 }).map((_, index) => (
+                  <div
+                    key={index}
+                    className="bg-white p-4 rounded shadow relative min-w-0 flex flex-col animate-pulse"
+                  >
+                    {/* Image skeleton */}
+                    <div className="h-[200px] bg-gray-200 rounded" />
 
-                    {/* Hover Icons */}
-                    <div
-                      className="absolute flex gap-2 
-            opacity-0 group-hover:opacity-100 transition-all duration-300"
+                    {/* Category skeleton */}
+                    <div className="mt-3 h-3 bg-gray-200 rounded w-1/3" />
+
+                    {/* Product name skeleton */}
+                    <div className="mt-2 h-4 bg-gray-200 rounded w-2/3" />
+
+                    {/* Price skeleton */}
+                    <div className="mt-3 h-5 bg-gray-200 rounded w-1/2" />
+                  </div>
+                ))
+              : // ✅ Actual Products
+                products.slice(0, 8).map((item) => {
+                  return (
+                    <Link
+                      to={`/product/${item.seo?.slug ?? ""}`}
+                      key={item._id}
+                      className="bg-white p-4 rounded shadow relative group min-w-0 flex flex-col"
                     >
-                      {/* Wishlist */}
-                      <span className="p-2 bg-gray-100 rounded-2xl hover:bg-gray-200 shadow">
-                        <FaRegHeart
-                          className={`cursor-pointer transition-transform duration-300 ${
-                            wishlist ? "text-red-500" : "text-gray-400"
-                          } ${
-                            animateId === item._id ? "scale-125" : "scale-100"
-                          }`}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            e.preventDefault();
-                            handleAddToWishlist(item);
+                      {/* Product Image */}
+                      <div className="h-[200px] flex items-center justify-center relative overflow-hidden">
+                        <img
+                          src={`${URL}/${item.mainImage}`}
+                          alt={item.name}
+                          className="object-contain w-full h-full transition-transform duration-300 group-hover:scale-105"
+                          onMouseEnter={(e) => {
+                            if (item.gallery && item.gallery.length > 0) {
+                              e.currentTarget.src = `${URL}/${item.gallery[0]}`;
+                            }
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.src = `${URL}/${item.mainImage}`;
                           }}
                         />
-                      </span>
 
-                      {/* Cart */}
-                      <span className="p-2 bg-gray-100 rounded-2xl hover:bg-gray-200 shadow">
-                        <BsCart3
-                          className={`cursor-pointer transition-transform duration-300 ${
-                            isInCart(item._id)
-                              ? "text-teal-600"
-                              : "text-gray-400"
-                          } ${
-                            animateCartId === item._id
-                              ? "scale-125"
-                              : "scale-100"
-                          }`}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            e.preventDefault();
-                            toggleCartItem(item);
-                          }}
-                        />
-                      </span>
+                        {/* Hover Icons */}
+                        <div className="absolute flex gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300">
+                          {/* Wishlist */}
+                          <span className="p-2 bg-gray-100 rounded-2xl hover:bg-gray-200 shadow">
+                            <FaRegHeart
+                              className={`cursor-pointer transition-transform duration-300 ${
+                                wishlist?.some((w) => w._id === item._id)
+                                  ? "text-red-500"
+                                  : "text-gray-400"
+                              } ${
+                                animateId === item._id
+                                  ? "scale-125"
+                                  : "scale-100"
+                              }`}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                e.preventDefault();
+                                handleAddToWishlist(item);
+                              }}
+                            />
+                          </span>
 
-                      {/* Quick View */}
-                      <span className="p-2 bg-gray-100 rounded-2xl hover:bg-gray-200 shadow text-gray-400">
-                        <IoEye
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            e.preventDefault();
-                            handleViewProduct(item);
-                          }}
-                        />
-                      </span>
-                    </div>
-                  </div>
+                          {/* Cart */}
+                          <span className="p-2 bg-gray-100 rounded-2xl hover:bg-gray-200 shadow">
+                            <BsCart3
+                              className={`cursor-pointer transition-transform duration-300 ${
+                                isInCart(item._id)
+                                  ? "text-teal-600"
+                                  : "text-gray-400"
+                              } ${
+                                animateCartId === item._id
+                                  ? "scale-125"
+                                  : "scale-100"
+                              }`}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                e.preventDefault();
+                                toggleCartItem(item);
+                              }}
+                            />
+                          </span>
 
-                  {/* Category */}
-                  <p className="text-sm text-gray-500 mt-3">
-                    {item.categoryName}
-                  </p>
+                          {/* Quick View */}
+                          <span className="p-2 bg-gray-100 rounded-2xl hover:bg-gray-200 shadow text-gray-400">
+                            <IoEye
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                e.preventDefault();
+                                handleViewProduct(item);
+                              }}
+                            />
+                          </span>
+                        </div>
+                      </div>
 
-                  {/* Product Name */}
-                  <h3 className="text-md font-semibold truncate">
-                    {item.name}
-                  </h3>
+                      {/* Category */}
+                      <p className="text-sm text-gray-500 mt-3">
+                        {item.categoryName}
+                      </p>
 
-                  {/* Price */}
-                  <div className="mt-2 text-lg">
-                    {item.pricing?.mrp && (
-                      <span className="line-through text-gray-400 mr-2">
-                        ₹{item.pricing.mrp}
-                      </span>
-                    )}
-                    <span className="text-teal-600 font-semibold">
-                      ₹{item.pricing?.salePrice ?? 0}
-                    </span>
-                  </div>
-                </Link>
-              );
-            })}
+                      {/* Product Name */}
+                      <h3 className="text-md font-semibold truncate">
+                        {item.name}
+                      </h3>
+
+                      {/* Price */}
+                      <div className="mt-2 text-lg">
+                        {item.pricing?.mrp && (
+                          <span className="line-through text-gray-400 mr-2">
+                            ₹{item.pricing.mrp}
+                          </span>
+                        )}
+                        <span className="text-teal-600 font-semibold">
+                          ₹{item.pricing?.salePrice ?? 0}
+                        </span>
+                      </div>
+                    </Link>
+                  );
+                })}
           </div>
         </div>
       </div>
@@ -1193,107 +1254,127 @@ const MainPage = () => {
             // data-aos="fade-right"
           >
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-              {products.slice(0, 8).map((item) => {
-                return (
-                  <Link
-                    to={`/product/${item.seo?.slug ?? ""}`}
-                    key={item._id}
-                    className="bg-white p-4 rounded-xl shadow relative group transition-all duration-300"
-                  >
-                    {/* Product Image */}
-                    <div className="h-[200px] flex items-center justify-center relative">
-                      <img
-                        src={`${URL}/${item.mainImage}`}
-                        alt={item.name}
-                        className="object-contain w-full h-full transition-transform duration-300 group-hover:scale-105"
-                        onMouseEnter={(e) => {
-                          if (item.gallery && item.gallery.length > 0) {
-                            e.currentTarget.src = `${URL}/${item.gallery[0]}`;
-                          }
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.src = `${URL}/${item.mainImage}`;
-                        }}
-                      />
+              {loading.product
+                ? // ✅ Skeleton placeholders while loading
+                  Array.from({ length: 8 }).map((_, index) => (
+                    <div
+                      key={index}
+                      className="bg-white p-4 rounded shadow relative w-60 flex flex-col animate-pulse"
+                    >
+                      {/* Image skeleton */}
+                      <div className="h-40 bg-gray-200 rounded" />
 
-                      {/* Hover Icons */}
-                      <div
-                        className="absolute flex gap-2 opacity-0 
-            group-hover:opacity-100 transition-opacity duration-300"
-                      >
-                        {/* Wishlist */}
-                        <span className="p-2 bg-gray-100 rounded-2xl hover:bg-gray-200">
-                          <FaRegHeart
-                            className={`cursor-pointer transition-all duration-300 ${
-                              wishlist ? "text-red-500" : "text-gray-400"
-                            } ${
-                              animateId === item._id ? "scale-125" : "scale-100"
-                            }`}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              e.preventDefault();
-                              handleAddToWishlist(item);
-                            }}
-                          />
-                        </span>
+                      {/* Category skeleton */}
+                      <div className="mt-3 h-2 bg-gray-200 rounded w-1/3" />
 
-                        {/* Cart */}
-                        <span className="p-2 bg-gray-100 rounded-2xl hover:bg-gray-200">
-                          <BsCart3
-                            className={`cursor-pointer transition-all duration-300 ${
-                              isInCart(item._id)
-                                ? "text-teal-600"
-                                : "text-gray-400"
-                            } ${
-                              animateCartId === item._id
-                                ? "scale-125"
-                                : "scale-100"
-                            }`}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              e.preventDefault();
-                              toggleCartItem(item);
-                            }}
-                          />
-                        </span>
+                      {/* Product name skeleton */}
+                      <div className="mt-2 h-4 bg-gray-200 rounded w-2/3" />
 
-                        {/* Quick View */}
-                        <span className="p-2 bg-gray-100 rounded-2xl hover:bg-gray-200 text-gray-400">
-                          <IoEye
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              e.preventDefault();
-                              handleViewProduct(item);
-                            }}
-                          />
+                      {/* Price skeleton */}
+                      <div className="mt-3 h-5 bg-gray-200 rounded w-1/2" />
+                    </div>
+                  ))
+                : // ✅ Actual product cards
+                  products.slice(0, 8).map((item) => (
+                    <Link
+                      to={`/product/${item.seo?.slug ?? ""}`}
+                      key={item._id}
+                      className="bg-white p-4 rounded-xl shadow relative group transition-all duration-300"
+                    >
+                      {/* Product Image */}
+                      <div className="h-[200px] flex items-center justify-center relative">
+                        <img
+                          src={`${URL}/${item.mainImage}`}
+                          alt={item.name}
+                          className="object-contain w-full h-full transition-transform duration-300 group-hover:scale-105"
+                          onMouseEnter={(e) => {
+                            if (item.gallery && item.gallery.length > 0) {
+                              e.currentTarget.src = `${URL}/${item.gallery[0]}`;
+                            }
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.src = `${URL}/${item.mainImage}`;
+                          }}
+                        />
+
+                        {/* Hover Icons */}
+                        <div className="absolute flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                          {/* Wishlist */}
+                          <span className="p-2 bg-gray-100 rounded-2xl hover:bg-gray-200">
+                            <FaRegHeart
+                              className={`cursor-pointer transition-all duration-300 ${
+                                wishlist?.some((w) => w._id === item._id)
+                                  ? "text-red-500"
+                                  : "text-gray-400"
+                              } ${
+                                animateId === item._id
+                                  ? "scale-125"
+                                  : "scale-100"
+                              }`}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                e.preventDefault();
+                                handleAddToWishlist(item);
+                              }}
+                            />
+                          </span>
+
+                          {/* Cart */}
+                          <span className="p-2 bg-gray-100 rounded-2xl hover:bg-gray-200">
+                            <BsCart3
+                              className={`cursor-pointer transition-all duration-300 ${
+                                isInCart(item._id)
+                                  ? "text-teal-600"
+                                  : "text-gray-400"
+                              } ${
+                                animateCartId === item._id
+                                  ? "scale-125"
+                                  : "scale-100"
+                              }`}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                e.preventDefault();
+                                toggleCartItem(item);
+                              }}
+                            />
+                          </span>
+
+                          {/* Quick View */}
+                          <span className="p-2 bg-gray-100 rounded-2xl hover:bg-gray-200 text-gray-400">
+                            <IoEye
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                e.preventDefault();
+                                handleViewProduct(item);
+                              }}
+                            />
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Category */}
+                      <p className="text-sm text-gray-500 mt-3">
+                        {item.categoryName}
+                      </p>
+
+                      {/* Product Name */}
+                      <h3 className="text-md font-semibold truncate">
+                        {item.name}
+                      </h3>
+
+                      {/* Price */}
+                      <div className="mt-2 text-lg">
+                        {item.pricing?.mrp && (
+                          <span className="line-through text-gray-400 mr-2">
+                            ₹{item.pricing.mrp}
+                          </span>
+                        )}
+                        <span className="text-teal-600 font-semibold">
+                          ₹{item.pricing?.salePrice ?? 0}
                         </span>
                       </div>
-                    </div>
-
-                    {/* Category */}
-                    <p className="text-sm text-gray-500 mt-3">
-                      {item.categoryName}
-                    </p>
-
-                    {/* Product Name */}
-                    <h3 className="text-md font-semibold truncate">
-                      {item.name}
-                    </h3>
-
-                    {/* Price */}
-                    <div className="mt-2 text-lg">
-                      {item.pricing?.mrp && (
-                        <span className="line-through text-gray-400 mr-2">
-                          ₹{item.pricing.mrp}
-                        </span>
-                      )}
-                      <span className="text-teal-600 font-semibold">
-                        ₹{item.pricing?.salePrice ?? 0}
-                      </span>
-                    </div>
-                  </Link>
-                );
-              })}
+                    </Link>
+                  ))}
             </div>
 
             {/* === QUICK VIEW === */}

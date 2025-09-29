@@ -12,6 +12,7 @@ import { Link } from "react-router-dom";
 import { BsCart3 } from "react-icons/bs";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useSearchParams } from "react-router-dom";
 gsap.registerPlugin(ScrollTrigger);
 
 const ShopPage = () => {
@@ -30,6 +31,7 @@ const ShopPage = () => {
   const [selectedStatuses, setSelectedStatuses] = useState([]);
   const [selectedColors, setSelectedColors] = useState([]);
   const [selectedAttributes, setSelectedAttributes] = useState();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const isInCart = (productId) => {
     const cart = JSON.parse(localStorage.getItem("cart")) || [];
@@ -567,7 +569,14 @@ const ShopPage = () => {
 
           {/* Product Cards */}
           <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
-            {filteredProducts.map((item) => {
+            {(searchParams.get("search")
+              ? filteredProducts.filter((item) =>
+                  item.name
+                    .toLowerCase()
+                    .includes(searchParams.get("search").toLowerCase())
+                )
+              : filteredProducts
+            ).map((item) => {
               const isInWishlist = wishlist.some((w) => w._id === item._id);
               return (
                 <Link

@@ -20,7 +20,7 @@ import { PiTelevisionBold } from "react-icons/pi";
 import { RiHeadphoneFill } from "react-icons/ri";
 import { LuRadioReceiver } from "react-icons/lu";
 import { LuBoomBox } from "react-icons/lu";
-import { Link, Links, useNavigate } from "react-router-dom";
+import { Link, Links, useNavigate, useSearchParams } from "react-router-dom";
 import { IoClose } from "react-icons/io5";
 import { LuMenu } from "react-icons/lu";
 import axios from "axios";
@@ -49,6 +49,9 @@ const Header = () => {
   const [wishlist, setWishlist] = useState([]);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [categories, setCategories] = useState([]);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [search, setSearch] = useState(searchParams.get("search") || "");
+  console.log(search);
 
   const menuLinks = [
     { name: "Home", path: "/" },
@@ -67,7 +70,6 @@ const Header = () => {
   const [index, setIndex] = useState(0);
   const [animating, setAnimating] = useState(false);
 
-  console.log(showAll);
   const products = [
     {
       category: "Audio",
@@ -198,6 +200,14 @@ const Header = () => {
     };
     fetchProducts();
   }, []);
+
+  const handleSearch = () => {
+    if (search.trim() !== "") {
+      // Navigate to /shop with search query as URL param
+      navigate(`/shop?search=${encodeURIComponent(search.trim())}`);
+    }
+  };
+
   useEffect(() => {
     const interval = setInterval(() => {
       setIndex((prev) => (prev + 1) % searchProduct.length);
@@ -472,26 +482,38 @@ const Header = () => {
                   type="text"
                   placeholder="Search For"
                   className="px-4 py-2 w-full outline-none"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.code === "Enter") {
+                      handleSearch();
+                    }
+                  }}
                 />
 
                 {/* Animated words wrapper */}
-                <div className="absolute left-[96px] top-[17.5px] w-[100px] -translate-y-[10px] h-[24px] leading-[24px] overflow-hidden text-gray-500 pointer-events-none">
-                  {searchProduct.map((item, i) => (
-                    <span
-                      key={i}
-                      className={`absolute w-full transition-transform duration-700 ease-in-out
-                ${i === index ? "translate-y-0 opacity-100" : ""}
-                ${i < index ? "-translate-y-full opacity-0" : ""}
-                ${i > index ? "translate-y-full opacity-0" : ""}
-              `}
-                    >
-                      {item}
-                    </span>
-                  ))}
-                </div>
+                {search === "" && (
+                  <div className="absolute left-[96px] top-[17.5px] w-[100px] -translate-y-[10px] h-[24px] leading-[24px] overflow-hidden text-gray-500 pointer-events-none">
+                    {searchProduct.map((item, i) => (
+                      <span
+                        key={i}
+                        className={`absolute w-full transition-transform duration-700 ease-in-out
+            ${i === index ? "translate-y-0 opacity-100" : ""}
+            ${i < index ? "-translate-y-full opacity-0" : ""}
+            ${i > index ? "translate-y-full opacity-0" : ""}
+          `}
+                      >
+                        {item}
+                      </span>
+                    ))}
+                  </div>
+                )}
               </div>
 
-              <button className="bg-teal-600 text-white px-4 flex items-center justify-center cursor-pointer">
+              <button
+                className="bg-teal-600 text-white px-4 flex items-center justify-center cursor-pointer"
+                onClick={handleSearch}
+              >
                 <FaSearch />
               </button>
             </div>
