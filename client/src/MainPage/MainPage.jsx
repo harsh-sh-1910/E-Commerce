@@ -82,10 +82,10 @@ const MainPage = () => {
     window.dispatchEvent(new Event("wishlistUpdated"));
 
     setAnimateCartId(product._id);
-    setAnimateId(product._id);
-    setTimeout(() => setAnimateId(null), 300);
-    setTimeout(() => setAnimateCartId(null), 500);
-    setTimeout(() => setCartMsg(""), 2000);
+    // setAnimateId(product._id);
+    // setTimeout(() => setAnimateId(null), 300);
+    setTimeout(() => setAnimateCartId(null), 300);
+    setTimeout(() => setWishlistMsg(""), 2000);
   };
 
   const toggleCartItem = (product) => {
@@ -389,9 +389,11 @@ const MainPage = () => {
                 <p className="text-sm mt-4 font-semibold">
                   Only Music. Nothing Else.
                 </p>
-                <button className="mt-5 px-6 py-3 bg-teal-700 text-white text-sm rounded-xl hover:bg-white hover:text-teal-700 transition-colors duration-300">
-                  View Details
-                </button>
+                <Link to="/shop">
+                  <button className="mt-5 px-6 py-3 bg-teal-700 text-white text-sm rounded-xl hover:bg-white hover:text-teal-700 transition-colors duration-300">
+                    View Details
+                  </button>
+                </Link>
               </div>
             </div>
           </div>
@@ -898,7 +900,8 @@ const MainPage = () => {
                   </div>
                 ))
               : deals.map((item) => (
-                  <div
+                  <Link
+                    to={`/product/${item.seo?.slug ?? ""}`}
                     key={item.id}
                     className="flex-shrink-0 w-[250px] bg-white shadow rounded-lg flex flex-col justify-between"
                   >
@@ -944,7 +947,7 @@ const MainPage = () => {
                         <p>{getRemainingTimeDetailed(item.time.end)}</p>
                       </div>
                     )}
-                  </div>
+                  </Link>
                 ))}
           </div>
         </div>
@@ -963,9 +966,11 @@ const MainPage = () => {
               <p className="text-sm sm:text-lg mt-2 font-semibold">
                 Integrated Control and Mode
               </p>
-              <button className="mt-4 px-5 py-2 bg-teal-700 text-white text-sm rounded-xl hover:bg-white hover:text-teal-700 transition">
-                View Details
-              </button>
+              <Link to="/shop">
+                <button className="mt-4 px-5 py-2 bg-teal-700 text-white text-sm rounded-xl hover:bg-white hover:text-teal-700 transition">
+                  View Details
+                </button>
+              </Link>
             </div>
           </div>
 
@@ -1040,9 +1045,11 @@ const MainPage = () => {
                 <p className="mt-4 text-sm md:text-base font-semibold">
                   Only Music. Nothing Else.
                 </p>
-                <button className="mt-5 px-6 py-3 bg-teal-700 text-white text-sm rounded-xl hover:bg-white hover:text-teal-700 transition">
-                  View Details
-                </button>
+                <Link to="/shop">
+                  <button className="mt-5 px-6 py-3 bg-teal-700 text-white text-sm rounded-xl hover:bg-white hover:text-teal-700 transition">
+                    View Details
+                  </button>
+                </Link>
               </div>
             </div>
 
@@ -1592,9 +1599,12 @@ const MainPage = () => {
               <p className="mt-3 text-sm md:text-base font-semibold">
                 Vibrant Colors with Rugged Fabric Design
               </p>
-              <button className="mt-5 px-6 py-3 bg-teal-700 text-white text-sm rounded-xl hover:bg-white hover:text-teal-700 transition-colors duration-300">
-                Explore More
-              </button>
+              <Link to="/shop">
+                {" "}
+                <button className="mt-5 px-6 py-3 bg-teal-700 text-white text-sm rounded-xl hover:bg-white hover:text-teal-700 transition-colors duration-300">
+                  Explore More
+                </button>
+              </Link>
             </div>
           </div>
         </div>

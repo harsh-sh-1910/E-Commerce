@@ -21,7 +21,7 @@ const navItems = [
   { label: "Create Deals", icon: <FaBox />, path: "/dealpage" },
   { label: "Customers", icon: <FaUsers />, path: "/customers" },
   { label: "Category", icon: <FaBox />, path: "/category" },
-  { label: "Reviews", icon: <FaMessage />, path: "/reviews" },
+  // { label: "Reviews", icon: <FaMessage />, path: "/reviews" },
   { label: "Settings", icon: <FaCog />, path: "/settings" },
 ];
 

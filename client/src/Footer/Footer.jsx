@@ -19,11 +19,9 @@ const Footer = () => {
           </a>
           <p className="text-gray-400 mt-2">Call us 24/7</p>
           <h2 className="text-xl font-semibold">+1 1800 9797 6000</h2>
-          <p className="text-gray-400">
-            215 Western Plaza, Melbourne, Australia
-          </p>
+          <p className="text-gray-400">XYZ, New Delhi, India</p>
           <a href="mailto:contact@xstore.com" className="underline text-white">
-            contact@xstore.com
+            google@xstore.com
           </a>
 
           {/* Social Icons */}
@@ -125,8 +123,8 @@ const Footer = () => {
       {/* Bottom Footer */}
       <div className="border-t border-gray-700 mt-10 pt-6 flex flex-col md:flex-row items-center justify-between gap-4 text-gray-400 text-xs">
         <p>
-          Copyright © 2024 XStore theme. Created by 8theme – WordPress
-          WooCommerce themes.
+          © 2025 XStore. Developed professionally by Harsh Sharma using the MERN
+          Stack.
         </p>
       </div>
     </footer>
