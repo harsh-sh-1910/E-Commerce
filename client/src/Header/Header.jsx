@@ -31,8 +31,8 @@ import {
 } from "../CartUtils/CartUtils";
 
 const Header = () => {
-  const URL = "https://e-commerce-4pcq.onrender.com";
-  // const URL = "http://localhost:5000";
+  // const URL = "https://e-commerce-4pcq.onrender.com";
+  const URL = "http://localhost:5000";
   const navigate = useNavigate();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [showAll, setShowAll] = useState(false);
@@ -540,7 +540,7 @@ const Header = () => {
         </div>
 
         <div className="bg-[#e6f6f6] px-12 mt-2 mb-2 xl:flex hidden h-15">
-          <div className="flex items-center justify-between w-full">
+          <div className="flex items-center justify-between w-full h-full">
             {/* Left - All Departments */}
             <div className="flex gap-20">
               <div
@@ -584,7 +584,7 @@ const Header = () => {
                           <IoIosArrowForward className="mt-1" />
                         </span>
                         {audioData && (
-                          <div className="absolute flex gap-10 px-6 py-10 bg-white w-[70vw] h-[70vh] top-[0px] rounded-xl left-62">
+                          <div className="absolute flex gap-10 px-6 py-10 bg-white w-[70vw] h-[70vh] top-[0px] rounded-xl left-62 border border-gray-200">
                             {/* Left Sidebar */}
                             <div className="w-full xl:w-1/4">
                               <h2 className="text-lg font-semibold mb-2 flex items-center gap-1">
@@ -679,7 +679,7 @@ const Header = () => {
                           <IoIosArrowForward className="mt-1 " />
                         </span>
                         {cameraData && (
-                          <div className="absolute bg-white px-6 py-10 space-y-5 top-[0px] w-[80vw] left-62 h-[75vh] overflow-auto scroll-smooth no-scrollbar rounded-xl">
+                          <div className="absolute bg-white px-6 py-10 space-y-5 top-[0px] w-[80vw] left-62 h-[75vh] overflow-auto scroll-smooth no-scrollbar rounded-xl border border-gray-200">
                             {/* Top Section - Blog Cards and Promo Banner */}
                             <div className="flex gap-5">
                               <div>
@@ -805,7 +805,7 @@ const Header = () => {
                           <IoIosArrowForward className="mt-1" />
                         </span>
                         {computerData && (
-                          <div className="flex flex-col lg:flex-row items-start justify-between ps-5 py-16 gap-10 absolute w-[50vw] top-0 left-62 bg-white rounded-xl">
+                          <div className="flex flex-col lg:flex-row items-start justify-between ps-5 py-16 gap-10 absolute w-[50vw] top-0 left-62 bg-white rounded-xl border border-gray-200">
                             {/* Left Side - Categories */}
                             <div className="grid grid-cols-2 gap-10 flex-1">
                               {/* Map through parent categories */}
@@ -947,7 +947,7 @@ const Header = () => {
 
                   <div
                     className={`absolute translate-x-[-15%] top-[48px] z-50 bg-white px-6 py-10 flex gap-10 w-[70vw] h-[70vh] rounded-xl shadow-lg 
-    transition-all duration-400 ease-in-out transform
+    transition-all duration-400 ease-in-out transform border border-gray-200
     ${
       shopData
         ? "opacity-100 pointer-events-auto"
@@ -1066,7 +1066,7 @@ const Header = () => {
 
                   {/* Dropdown - always rendered, smooth transition */}
                   <div
-                    className={`absolute translate-x-[-28%] top-[48px] z-50 bg-white px-6 py-10 space-y-5 w-[80vw] h-[75vh] overflow-auto no-scrollbar rounded-xl shadow-lg transition-all duration-400 ease-in-out transform
+                    className={`absolute translate-x-[-28%] top-[48px] z-50 bg-white px-6 py-10 space-y-5 w-[80vw] h-[75vh] overflow-auto no-scrollbar rounded-xl shadow-lg transition-all duration-400 ease-in-out transform border border-gray-200
     ${
       blogData
         ? "opacity-100 pointer-events-auto"
