@@ -31,8 +31,8 @@ import {
 } from "../CartUtils/CartUtils";
 
 const Header = () => {
-  // const URL = "https://e-commerce-4pcq.onrender.com";
-  const URL = "http://localhost:5000";
+  const URL = "https://e-commerce-4pcq.onrender.com";
+  // const URL = "http://localhost:5000";
   const navigate = useNavigate();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [showAll, setShowAll] = useState(false);
