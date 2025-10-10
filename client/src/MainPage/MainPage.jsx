@@ -372,7 +372,7 @@ const MainPage = () => {
 
   return (
     <>
-      <div className="py-4 px-4 lg:px-10 bg-gray-100">
+      <div className="lg:py-4 px-4 lg:px-10 bg-gray-100">
         <div className="flex flex-col lg:flex-row gap-6">
           {/* Left background image */}
           <div className="w-full lg:w-1/2 flex justify-center">
