@@ -2,6 +2,8 @@ import React, { useState } from "react";
 
 const SingleProductPage = () => {
   const URL = "https://e-commerce-4pcq.onrender.com";
+  // const URL = "http://localhost:5000";
+
   const [paymentStatus, setPaymentStatus] = useState("Paid");
   const [fulfillmentStatus, setFulfillmentStatus] = useState("Shipped");
 

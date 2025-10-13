@@ -10,6 +10,8 @@ import {
 
 const CheckoutPage = () => {
   const URL = "https://e-commerce-4pcq.onrender.com";
+  // const URL = "http://localhost:5000";
+
   const [cartItems, setCartItems] = useState(() => {
     const items = getLocalStorage("cart") || [];
     return items
@@ -88,7 +90,7 @@ const CheckoutPage = () => {
 
                   {/* Price */}
                   <div className="md:col-span-2 text-sm md:text-base text-gray-900">
-                    ${item?.pricing?.salePrice?.toFixed(2) ?? "N/A"}
+                    &#8377;{item?.pricing?.salePrice?.toFixed(2) ?? "N/A"}
                   </div>
 
                   {/* SKU */}
@@ -119,7 +121,7 @@ const CheckoutPage = () => {
 
                   {/* Subtotal */}
                   <div className="md:col-span-1 text-right font-medium text-gray-900">
-                    $
+                    &#8377;
                     {item?.pricing?.salePrice
                       ? (item.quantity * item.pricing.salePrice).toFixed(2)
                       : "0.00"}

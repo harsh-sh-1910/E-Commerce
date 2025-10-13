@@ -5,48 +5,108 @@ export const LocationContext = createContext();
 
 export const LocationProvider = ({ children }) => {
   const [location, setLocation] = useState(null);
-  const [classification, setClassification] = useState(null);
   const [error, setError] = useState(null);
-
-  // Suppose your warehouse is in Delhi, India (change as per your setup)
+  const [loading, setLoading] = useState(false);
+  let classification = null;
   const warehouseCity = "Delhi";
   const warehouseCountry = "India";
 
+  // 🔹 Auto detect location (optional)
   useEffect(() => {
     axios
       .get("https://ipapi.co/json/")
       .then((res) => {
-        setLocation(res.data);
-        setClassification(getClassification(res.data));
+        const loc = {
+          city: res.data.city,
+          state: res.data.region,
+          country: res.data.country_name,
+        };
+        setLocation(loc);
       })
-      .catch((err) => {
-        console.error("Error fetching location:", err);
-        setError("Unable to auto-detect location");
-      });
+      .catch(() => setError("Unable to auto-detect location"));
   }, []);
 
-  const getClassification = (loc) => {
-    if (!loc) return null;
-    if (loc.country_name !== warehouseCountry) return "International";
-    if (loc.city === warehouseCity) return "Local";
-    return "Zonal";
-  };
+  // 🔹 Fetch location by pincode
+  const fetchLocationByPincode = async (pincode) => {
+    // ✅ Normal variable, not state
 
-  // For manual pincode input, mock classification logic
-  const classifyByPincode = (pincode) => {
-    // You can replace this with real API or your own mapping
-    if (pincode.startsWith("11")) return "Local"; // Example: Delhi
-    if (pincode.startsWith("1")) return "Zonal"; // Example: Same country
-    return "International"; // Everything else
+    try {
+      if (!pincode || !/^\d{3,10}$/.test(pincode)) {
+        setError("❌ Invalid pincode format (must be 3–10 digits)");
+        setLocation(null);
+        return null;
+      }
+
+      setLoading(true);
+      setError(null);
+
+      const res = await axios.get(
+        `https://api.postalpincode.in/pincode/${pincode}`
+      );
+      const data = res.data?.[0];
+
+      let newLoc = null;
+
+      if (data && data.Status === "Success" && data.PostOffice?.length) {
+        const office = data.PostOffice[0];
+        newLoc = {
+          pincode,
+          city: office.District,
+          state: office.State,
+          country: "India",
+        };
+      } else {
+        const fallback = await axios
+          .get(`https://api.zippopotam.us/in/${pincode}`)
+          .catch(() => null);
+
+        if (fallback?.data) {
+          const place = fallback.data.places?.[0];
+          newLoc = {
+            pincode,
+            city: place["place name"],
+            state: place["state"],
+            country: fallback.data.country,
+          };
+        } else {
+          setError("Pincode not found. Please check and try again.");
+          setLocation(null);
+          return null;
+        }
+      }
+
+      setLocation(newLoc);
+
+      // 🔹 Set classification based on newLoc
+      if (newLoc.country.toLowerCase() !== warehouseCountry.toLowerCase()) {
+        classification = "International";
+      } else if (
+        newLoc.city.toLowerCase().includes(warehouseCity.toLowerCase())
+      ) {
+        classification = "Local";
+      } else {
+        classification = "Zonal";
+      }
+
+      return classification; // ✅ Return it immediately
+    } catch (err) {
+      console.error("Error fetching pincode info:", err);
+      setError("⚠ Failed to fetch location data");
+      return null;
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <LocationContext.Provider
       value={{
         location,
-        classification,
         error,
-        classifyByPincode,
+        loading,
+        fetchLocationByPincode,
+        setLoading,
+        setError,
       }}
     >
       {children}

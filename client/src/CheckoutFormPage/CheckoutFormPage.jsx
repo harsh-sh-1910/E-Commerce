@@ -4,7 +4,7 @@ import { jwtDecode } from "jwt-decode";
 
 const CheckoutFormPage = () => {
   const URL = "https://e-commerce-4pcq.onrender.com";
-  // const URL="http://localhost:5000"
+  // const URL = "http://localhost:5000";
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",

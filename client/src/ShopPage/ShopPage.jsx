@@ -32,6 +32,16 @@ const ShopPage = () => {
   const [selectedColors, setSelectedColors] = useState([]);
   const [selectedAttributes, setSelectedAttributes] = useState();
   const [searchParams, setSearchParams] = useSearchParams();
+  const search = searchParams.get("search");
+
+  const catParam = searchParams.get("category");
+
+  // if (catParam) {
+  //   const categoryParams = `${search}and${catParam}`;
+  //   searchParams.set("category", categoryParams);
+  // } else {
+  //   searchParams.set("category", catParam);
+  // }
 
   const isInCart = (productId) => {
     const cart = JSON.parse(localStorage.getItem("cart")) || [];
@@ -429,22 +439,45 @@ const ShopPage = () => {
           <div>
             <h2 className="font-bold mb-5 text-xl">All Categories</h2>
             {categories.slice(3).map((cat, i) => (
-              <div key={i} className="flex justify-between items-center my-2">
-                <label className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    onChange={() =>
-                      setSelectedCategories((prev) =>
-                        prev.includes(cat.name)
-                          ? prev.filter((c) => c !== cat.name)
-                          : [...prev, cat.name]
-                      )
-                    }
-                  />
-                  <span>{cat.name}</span>
-                </label>
-                <span className="text-gray-500 text-xs">{cat.count}</span>
-              </div>
+              <Link
+                to={
+                  searchParams.get("search")
+                    ? `/shop?search=${searchParams.get(
+                        "search"
+                      )}&category=${cat.name
+                        .toLowerCase()
+                        .replace(/&/g, "and")
+                        .replace(/\s+/g, "-")}`
+                    : `/shop?category=${cat.name
+                        .toLowerCase()
+                        .replace(/&/g, "and")
+                        .replace(/\s+/g, "-")}`
+                }
+              >
+                {" "}
+                <div key={i} className="flex justify-between items-center my-2">
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      checked={
+                        cat.name
+                          .toLowerCase()
+                          .replace(/&/g, "and")
+                          .replace(/\s+/g, "-") === catParam
+                      }
+                      // onChange={() =>
+                      //   setSelectedCategories((prev) =>
+                      //     prev.includes(cat.name)
+                      //       ? prev.filter((c) => c !== cat.name)
+                      //       : [...prev, cat.name]
+                      //   )
+                      // }
+                    />
+                    <span>{cat.name}</span>
+                  </label>
+                  <span className="text-gray-500 text-xs">{cat.count}</span>
+                </div>
+              </Link>
             ))}
           </div>
 
@@ -569,13 +602,40 @@ const ShopPage = () => {
 
           {/* Product Cards */}
           <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
-            {(searchParams.get("search")
-              ? filteredProducts.filter((item) =>
+            {(searchParams.get("search") && searchParams.get("category")
+              ? // ✅ Case 1: Both search and category
+                filteredProducts.filter((item) => {
+                  const search = searchParams.get("search").toLowerCase();
+                  const catParam = searchParams.get("category").toLowerCase();
+                  const formattedCategory = item.categoryName
+                    .toLowerCase()
+                    .replace(/&/g, "and")
+                    .replace(/\s+/g, "-");
+
+                  return (
+                    item.name.toLowerCase().includes(search) &&
+                    formattedCategory === catParam
+                  );
+                })
+              : searchParams.get("search")
+              ? // ✅ Case 2: Only search
+                filteredProducts.filter((item) =>
                   item.name
                     .toLowerCase()
                     .includes(searchParams.get("search").toLowerCase())
                 )
-              : filteredProducts
+              : searchParams.get("category")
+              ? // ✅ Case 3: Only category
+                filteredProducts.filter((item) => {
+                  const catParam = searchParams.get("category").toLowerCase();
+                  const formattedCategory = item.categoryName
+                    .toLowerCase()
+                    .replace(/&/g, "and")
+                    .replace(/\s+/g, "-");
+                  return formattedCategory === catParam;
+                })
+              : // ✅ Case 4: Default (show all)
+                filteredProducts
             ).map((item) => {
               const isInWishlist = wishlist.some((w) => w._id === item._id);
               return (
@@ -584,6 +644,7 @@ const ShopPage = () => {
                   key={item._id}
                   className="bg-white p-4 rounded shadow relative"
                 >
+                  {/* ===== Product Image Section ===== */}
                   <div className="h-[200px] flex items-center justify-center relative group">
                     <img
                       src={`${URL}/${item.mainImage}`}
@@ -599,7 +660,9 @@ const ShopPage = () => {
                       }}
                     />
 
+                    {/* ===== Hover Icons ===== */}
                     <div className="absolute inset-0 flex items-center justify-center gap-3 bg-opacity-30 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                      {/* Wishlist */}
                       <span className="p-2 bg-white rounded-2xl hover:bg-gray-200 pointer-events-auto">
                         <FaRegHeart
                           className={`cursor-pointer transition-all duration-300 ${
@@ -614,6 +677,8 @@ const ShopPage = () => {
                           }}
                         />
                       </span>
+
+                      {/* Cart */}
                       <span className="p-2 bg-white rounded-2xl hover:bg-gray-200 pointer-events-auto">
                         <BsCart3
                           className={`cursor-pointer transition-all duration-300 ${
@@ -632,6 +697,8 @@ const ShopPage = () => {
                           }}
                         />
                       </span>
+
+                      {/* Quick View */}
                       <span className="p-2 bg-white rounded-2xl hover:bg-gray-200 pointer-events-auto text-gray-400">
                         <IoEye
                           onClick={(e) => {
@@ -644,6 +711,7 @@ const ShopPage = () => {
                     </div>
                   </div>
 
+                  {/* ===== Product Info ===== */}
                   <p className="text-sm text-gray-500 mt-3">
                     {item.categoryName}
                   </p>
@@ -651,11 +719,11 @@ const ShopPage = () => {
                   <div className="mt-2 text-lg">
                     {item.pricing?.mrp && (
                       <span className="line-through text-gray-400 mr-2">
-                        &#8377;{item.pricing.mrp}
+                        ₹{item.pricing.mrp}
                       </span>
                     )}
                     <span className="text-teal-600 font-semibold">
-                      &#8377;{item.pricing?.salePrice ?? 0}
+                      ₹{item.pricing?.salePrice ?? 0}
                     </span>
                   </div>
                 </Link>

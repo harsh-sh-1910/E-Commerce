@@ -30,6 +30,8 @@ const defaultStats = {
 
 const Profile = () => {
   const URL = "https://e-commerce-4pcq.onrender.com";
+  // const URL = "http://localhost:5000";
+
   const [user, setUser] = useState(null);
   const [stats, setStats] = useState(defaultStats);
   const navigate = useNavigate();

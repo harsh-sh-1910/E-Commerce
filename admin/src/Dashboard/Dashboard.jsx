@@ -4,6 +4,8 @@ import { RiFileList3Fill } from "react-icons/ri";
 
 const Dashboard = () => {
   const URL = "https://e-commerce-4pcq.onrender.com";
+  // const URL = "http://localhost:5000";
+
   const chartRef = useRef(null);
 
   useEffect(() => {

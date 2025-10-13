@@ -3,6 +3,7 @@ import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 
 const URL = "https://e-commerce-4pcq.onrender.com";
+// const URL = "http://localhost:5000";
 
 const UserAddress = () => {
   const [addresses, setAddresses] = useState([]);
@@ -17,13 +18,18 @@ const UserAddress = () => {
     zip: "",
   });
 
-  // Fetch addresses from backend on component mount
   useEffect(() => {
-    axios
-      .get(`${URL}/address`, { withCredentials: true })
-      .then((res) => setAddresses(res.data.data))
-      .catch((err) => console.error(err));
+    fetchAddresses();
   }, []);
+
+  const fetchAddresses = async () => {
+    try {
+      const res = await axios.get(`${URL}/address`, { withCredentials: true });
+      setAddresses(res.data.data);
+    } catch (error) {
+      console.error("Failed to fetch addresses:", error);
+    }
+  };
 
   const setDefaultAddress = async (id) => {
     try {
@@ -33,33 +39,31 @@ const UserAddress = () => {
         { withCredentials: true }
       );
 
-      setAddresses(
-        addresses.map((addr) => ({
+      setAddresses((prev) =>
+        prev.map((addr) => ({
           ...addr,
           isDefault: addr._id === id,
         }))
       );
     } catch (error) {
-      console.error(error);
+      console.error("Error setting default address:", error);
     }
   };
 
   const removeAddress = async (id) => {
     try {
-      await axios.delete(`${URL}/address/${id}`, {
-        withCredentials: true,
-      });
-      setAddresses(addresses.filter((addr) => addr._id !== id));
+      await axios.delete(`${URL}/address/${id}`, { withCredentials: true });
+      setAddresses((prev) => prev.filter((addr) => addr._id !== id));
     } catch (error) {
-      console.error(error);
+      console.error("Error removing address:", error);
     }
   };
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
+    setFormData((prev) => ({
+      ...prev,
       [e.target.name]: e.target.value,
-    });
+    }));
   };
 
   const addNewAddress = async (e) => {
@@ -71,26 +75,23 @@ const UserAddress = () => {
         return;
       }
 
-      // Parse if it was stored as JSON
+      // Decode JWT token (stringify-safe)
       try {
         token = JSON.parse(token);
-      } catch {
-        // Already a raw string
-      }
+      } catch {}
 
-      // Decode the token to get user info
       const decoded = jwtDecode(token);
-      const userId = decoded.id || decoded.userId || decoded._id; // depends on your backend token structure
+      const userId = decoded.id || decoded.userId || decoded._id;
 
-      const payload = { ...formData, userId }; // include id from token
+      const payload = { ...formData, userId };
 
       const res = await axios.post(`${URL}/address`, payload, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
+        withCredentials: true,
       });
 
-      setAddresses([...addresses, res.data.data]);
+      setAddresses((prev) => [...prev, res.data.data]);
+
       setFormData({
         firstName: "",
         lastName: "",
@@ -102,7 +103,10 @@ const UserAddress = () => {
       });
       setShowForm(false);
     } catch (error) {
-      console.error(error.response ? error.response.data : error.message);
+      console.error(
+        "Error adding address:",
+        error.response?.data || error.message
+      );
     }
   };
 

@@ -4,6 +4,8 @@ import { MdDeleteOutline } from "react-icons/md";
 
 const WishlistPage = () => {
   const URL = "https://e-commerce-4pcq.onrender.com";
+  // const URL = "http://localhost:5000";
+
   const [wishlistItems, setWishlistItems] = useState(() => {
     const items = getLocalStorage("wishlist") || [];
     return items.map((item) => ({

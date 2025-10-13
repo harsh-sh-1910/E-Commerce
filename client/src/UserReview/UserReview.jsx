@@ -27,6 +27,8 @@ const reviews = [
 
 const UserReview = () => {
   const URL = "https://e-commerce-4pcq.onrender.com";
+  // const URL = "http://localhost:5000";
+
   return (
     <div className="min-h-screen bg-gray-50 p-10">
       <div className="w-full text-center border-b mb-5 border-gray-300">

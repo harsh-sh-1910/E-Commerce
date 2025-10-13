@@ -30,6 +30,8 @@ const products = [
 
 const Products = () => {
   const URL = "https://e-commerce-4pcq.onrender.com";
+  // const URL = "http://localhost:5000";
+
   return (
     <div className="p-4 w-full">
       <div className="mb-4 flex justify-between items-center">

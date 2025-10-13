@@ -7,7 +7,7 @@ const Reviews = () => {
   const [searchTerm, setSearchTerm] = useState("");
 
   // Base URL
-  // const API_URL = "http://localhost:5000";
+  // const URL = "http://localhost:5000";
   const URL = "https://e-commerce-4pcq.onrender.com";
   // Fetch all reviews
   const fetchReviews = async () => {

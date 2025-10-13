@@ -27,6 +27,8 @@ const orders = [
 
 const Orders = () => {
   const URL = "https://e-commerce-4pcq.onrender.com";
+  // const URL = "http://localhost:5000";
+
   return (
     <div className="p-6 w-full">
       <div className="flex justify-between items-center mb-6">

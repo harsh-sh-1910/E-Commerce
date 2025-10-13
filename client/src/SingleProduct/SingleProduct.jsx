@@ -54,10 +54,15 @@ const SingleProduct = () => {
   const [animateId, setAnimateId] = useState(null);
   const [animateCartId, setAnimateCartId] = useState(null);
   const [quickViewProduct, setQuickViewProduct] = useState(null);
-  const { location, classification, error, classifyByPincode } =
-    useContext(LocationContext);
-  const [manualPincode, setManualPincode] = useState("");
-  const [manualClassification, setManualClassification] = useState(null);
+  const {
+    fetchLocationByPincode,
+    location,
+    classification,
+    error,
+    loading,
+    setLoading,
+    setError,
+  } = useContext(LocationContext);
 
   const deliveryTimes = {
     Local: "2-3 days",
@@ -129,16 +134,32 @@ const SingleProduct = () => {
   const closeQuickView = () => {
     setQuickViewProduct(null);
   };
-  const handleManualCheck = () => {
-    const result = classifyByPincode(manualPincode);
-    setManualClassification(result); // Update classification
-  };
-
-  const deliveryEstimate = manualClassification
-    ? deliveryTimes[manualClassification]
-    : null;
 
   const navigate = useNavigate();
+
+  const [manualPincode, setManualPincode] = useState("");
+  const [manualClassification, setManualClassification] = useState(null);
+  const [deliveryEstimate, setDeliveryEstimate] = useState("");
+
+  const handleManualCheck = async () => {
+    if (!manualPincode || manualPincode.length !== 6) return;
+    setLoading(true);
+    setError(null);
+    setDeliveryEstimate(null);
+    setManualClassification(null);
+
+    let classification = await fetchLocationByPincode(manualPincode);
+
+    if (classification) {
+      setManualClassification(classification);
+
+      let estimate = "";
+      if (classification === "Local") estimate = "Delivery in 1–2 days";
+      else if (classification === "Zonal") estimate = "Delivery in 3–5 days";
+      else estimate = "Delivery in 7–10 days";
+      setDeliveryEstimate(estimate);
+    }
+  };
 
   const handleMouseMove = (e) => {
     const { left, top, width, height } = imgRef.current.getBoundingClientRect();
@@ -676,29 +697,31 @@ const SingleProduct = () => {
                     onClick={handleManualCheck}
                     disabled={!manualPincode || manualPincode.length !== 6}
                     className={`text-sm font-medium px-7 py-3 rounded transition 
-        ${
-          !manualPincode || manualPincode.length !== 6
-            ? "bg-gray-400 cursor-not-allowed text-white"
-            : "bg-teal-600 hover:bg-teal-700 text-white"
-        }`}
+            ${
+              !manualPincode || manualPincode.length !== 6
+                ? "bg-gray-400 cursor-not-allowed text-white"
+                : "bg-teal-600 hover:bg-teal-700 text-white"
+            }`}
                   >
-                    Check
+                    {loading ? "Checking..." : "Check"}
                   </button>
                 </div>
 
                 {/* Delivery Section */}
                 <div className="flex items-center gap-3 mt-4">
-                  <i className="fas fa-undo text-blue-600"></i>
+                  <i className="fas fa-truck text-teal-600"></i>
                   <div>
                     <p className="font-medium text-gray-900">
                       Estimated delivery:
                     </p>
-                    {!manualClassification && !deliveryEstimate ? (
+                    {error ? (
+                      <p className="text-md text-red-500">{error}</p>
+                    ) : !manualClassification && !deliveryEstimate ? (
                       <p className="text-md text-gray-500">
                         Write pincode to check delivery
                       </p>
                     ) : (
-                      <p className="text-md text-gray-500">
+                      <p className="text-md text-gray-700">
                         {deliveryEstimate}
                       </p>
                     )}
@@ -715,6 +738,20 @@ const SingleProduct = () => {
                     </p>
                   </div>
                 </div>
+
+                {/* Optional: show fetched city/state */}
+                {/* {location && (
+                  <div className="text-sm text-gray-600 border-t pt-3 mt-3">
+                    <p>
+                      📍 <span className="font-medium">City:</span>{" "}
+                      {location.city}, {location.state}
+                    </p>
+                    <p>
+                      🏷 <span className="font-medium">Region Type:</span>{" "}
+                      {manualClassification || classification}
+                    </p>
+                  </div>
+                )} */}
               </div>
             </div>
 

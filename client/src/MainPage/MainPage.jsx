@@ -4,7 +4,9 @@ import dayjs from "dayjs";
 import { gsap } from "gsap";
 import AOS from "aos";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import {
   FaAngleRight,
   FaBell,
@@ -53,6 +55,10 @@ const MainPage = () => {
   });
   const [dealLoading, setDealLoading] = useState(true);
   const [catLoading, setCatLoading] = useState(true);
+  const [searchParams] = useSearchParams();
+  const catFilter = searchParams.get("category");
+  console.log(catFilter);
+
   const handleAddToWishlist = (product) => {
     const selectedItem = {
       _id: product._id,
@@ -87,6 +93,11 @@ const MainPage = () => {
     setTimeout(() => setAnimateCartId(null), 300);
     setTimeout(() => setWishlistMsg(""), 2000);
   };
+  // const categorySearch = () => {
+  //   const navigate = useNavigate();
+  //   navigate(`/shop?category=${categories.name}`);
+
+  // };
 
   const toggleCartItem = (product) => {
     const cart = JSON.parse(localStorage.getItem("cart")) || [];
@@ -583,7 +594,11 @@ const MainPage = () => {
                 ))
               : // 🔹 Real categories
                 categories.map((cat, index) => (
-                  <div
+                  <Link
+                    to={`/shop?category=${cat.name
+                      .toLowerCase()
+                      .replace(/&/g, "and")
+                      .replace(/\s+/g, "-")}`}
                     key={index}
                     className="flex flex-col items-center bg-gray-50 shadow-sm rounded-xl p-6 min-w-[160px] hover:shadow-md transition"
                   >
@@ -598,7 +613,7 @@ const MainPage = () => {
                     <p className="text-sm text-center text-gray-500">
                       Products
                     </p>
-                  </div>
+                  </Link>
                 ))}
           </div>
         </div>

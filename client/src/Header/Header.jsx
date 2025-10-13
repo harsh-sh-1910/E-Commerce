@@ -204,7 +204,17 @@ const Header = () => {
   const handleSearch = () => {
     if (search.trim() !== "") {
       // Navigate to /shop with search query as URL param
-      navigate(`/shop?search=${encodeURIComponent(search.trim())}`);
+      if (searchParams.get("category")) {
+        navigate(
+          `/shop?search=${encodeURIComponent(
+            search.trim()
+          )}&category=${searchParams.get("category")}`
+        );
+      } else {
+        navigate(`/shop?search=${encodeURIComponent(search.trim())}`);
+      }
+    } else {
+      navigate("/shop");
     }
   };
 
