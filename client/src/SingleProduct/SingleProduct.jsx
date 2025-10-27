@@ -740,18 +740,14 @@ const SingleProduct = () => {
                 </div>
 
                 {/* Optional: show fetched city/state */}
-                {/* {location && (
+                {location && (
                   <div className="text-sm text-gray-600 border-t pt-3 mt-3">
                     <p>
                       📍 <span className="font-medium">City:</span>{" "}
                       {location.city}, {location.state}
                     </p>
-                    <p>
-                      🏷 <span className="font-medium">Region Type:</span>{" "}
-                      {manualClassification || classification}
-                    </p>
                   </div>
-                )} */}
+                )}
               </div>
             </div>
 
