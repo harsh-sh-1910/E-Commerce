@@ -3,8 +3,8 @@ import { getLocalStorage } from "../localStorageUtils/localStorageUtils";
 import { MdDeleteOutline } from "react-icons/md";
 
 const WishlistPage = () => {
-  // const URL = "https://e-commerce-4pcq.onrender.com";
-  const URL = "http://localhost:5000";
+  const URL = "https://e-commerce-4pcq.onrender.com";
+  // const URL = "http://localhost:5000";
 
   const [wishlistItems, setWishlistItems] = useState(() => {
     const items = getLocalStorage("wishlist") || [];
@@ -52,7 +52,7 @@ const WishlistPage = () => {
               </div>
 
               <div className="md:col-span-3 font-medium flex justify-center">
-                &#8377;{item.price || item.pricing?.salePrice}
+                ${item.price || item.pricing?.salePrice}
               </div>
 
               <div className="text-center text-2xl md:col-span-3">

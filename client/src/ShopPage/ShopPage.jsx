@@ -13,10 +13,11 @@ import { BsCart3 } from "react-icons/bs";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useSearchParams } from "react-router-dom";
-import { API_BASE_URL } from "../apiBaseUrl";
 gsap.registerPlugin(ScrollTrigger);
 
 const ShopPage = () => {
+  const URL = "https://e-commerce-4pcq.onrender.com";
+  // const URL = "http://localhost:5000";
   const [wishlistMsg, setWishlistMsg] = useState("");
   const [animateId, setAnimateId] = useState(null);
   const [products, setProducts] = useState([]);
@@ -73,12 +74,12 @@ const ShopPage = () => {
       _id: product._id,
       title: product.name,
       price: product.pricing?.salePrice,
-      image: `${API_BASE_URL}/${product.mainImage}`,
+      image: `${URL}/${product.mainImage}`,
     };
 
     const existingWishlist = JSON.parse(localStorage.getItem("wishlist")) || [];
     const itemIndex = existingWishlist.findIndex(
-      (item) => item._id === selectedItem._id,
+      (item) => item._id === selectedItem._id
     );
 
     if (itemIndex === -1) {
@@ -109,7 +110,7 @@ const ShopPage = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const res = await axios.get(`${API_BASE_URL}/product/`);
+        const res = await axios.get(`${URL}/product/`);
         setProducts(res.data);
         console.log(res.data);
       } catch (error) {
@@ -136,7 +137,7 @@ const ShopPage = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const res = await axios.get(`${API_BASE_URL}/category/`);
+        const res = await axios.get(`${URL}/category/`);
         let backendCategories = res.data;
         console.log(res.data);
 
@@ -227,7 +228,7 @@ const ShopPage = () => {
             );
           }
           return false;
-        }),
+        })
       );
     }
 
@@ -243,7 +244,7 @@ const ShopPage = () => {
           const max = Number(parts[1]) || Infinity;
           const price = p.pricing?.salePrice ?? p.pricing?.mrp ?? 0;
           return price >= min && price <= max;
-        }),
+        })
       );
     }
 
@@ -310,7 +311,7 @@ const ShopPage = () => {
 
             // markers: true,      // uncomment to debug
           },
-        },
+        }
       );
     }, sectionRef);
 
@@ -382,12 +383,12 @@ const ShopPage = () => {
                   setFilteredProducts(newProducts);
                 } else if (categoryName === "Sale") {
                   const saleProducts = products.filter(
-                    (p) => p.pricing?.salePrice < p.pricing?.mrp,
+                    (p) => p.pricing?.salePrice < p.pricing?.mrp
                   );
                   setFilteredProducts(saleProducts);
                 } else {
                   const filtered = products.filter(
-                    (p) => p.categoryName === categoryName,
+                    (p) => p.categoryName === categoryName
                   );
                   setFilteredProducts(filtered);
                 }
@@ -409,8 +410,8 @@ const ShopPage = () => {
                     <span className="text-sm hover:underline">{cat.tag}</span>
                   ) : (
                     <img
-                      src={`${API_BASE_URL}/${encodeURI(
-                        cat.image.replaceAll("\\", "/"),
+                      src={`${URL}/${encodeURI(
+                        cat.image.replaceAll("\\", "/")
                       )}`}
                       alt={cat.label}
                       className="w-[75px] h-[75px] object-contain rounded-full hover:scale-110 transition"
@@ -442,7 +443,7 @@ const ShopPage = () => {
                 to={
                   searchParams.get("search")
                     ? `/shop?search=${searchParams.get(
-                        "search",
+                        "search"
                       )}&category=${cat.name
                         .toLowerCase()
                         .replace(/&/g, "and")
@@ -491,7 +492,7 @@ const ShopPage = () => {
                     setSelectedPrices((prev) =>
                       prev.includes(price)
                         ? prev.filter((p) => p !== price)
-                        : [...prev, price],
+                        : [...prev, price]
                     )
                   }
                 />
@@ -512,7 +513,7 @@ const ShopPage = () => {
                       setSelectedStatuses((prev) =>
                         prev.includes(status.label)
                           ? prev.filter((s) => s !== status.label)
-                          : [...prev, status.label],
+                          : [...prev, status.label]
                       )
                     }
                   />
@@ -546,23 +547,23 @@ const ShopPage = () => {
 
                 if (value === "rating") {
                   sortedProducts.sort(
-                    (a, b) => (b.rating || 0) - (a.rating || 0),
+                    (a, b) => (b.rating || 0) - (a.rating || 0)
                   );
                 } else if (value === "low") {
                   sortedProducts.sort(
                     (a, b) =>
                       (a.pricing?.salePrice || a.pricing?.mrp) -
-                      (b.pricing?.salePrice || b.pricing?.mrp),
+                      (b.pricing?.salePrice || b.pricing?.mrp)
                   );
                 } else if (value === "high") {
                   sortedProducts.sort(
                     (a, b) =>
                       (b.pricing?.salePrice || b.pricing?.mrp) -
-                      (a.pricing?.salePrice || a.pricing?.mrp),
+                      (a.pricing?.salePrice || a.pricing?.mrp)
                   );
                 } else if (value === "latest") {
                   sortedProducts.sort(
-                    (a, b) => new Date(b.createdAt) - new Date(a.createdAt),
+                    (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
                   );
                 } else {
                   sortedProducts = [...products]; // default → reset
@@ -617,26 +618,24 @@ const ShopPage = () => {
                   );
                 })
               : searchParams.get("search")
-                ? // ✅ Case 2: Only search
-                  filteredProducts.filter((item) =>
-                    item.name
-                      .toLowerCase()
-                      .includes(searchParams.get("search").toLowerCase()),
-                  )
-                : searchParams.get("category")
-                  ? // ✅ Case 3: Only category
-                    filteredProducts.filter((item) => {
-                      const catParam = searchParams
-                        .get("category")
-                        .toLowerCase();
-                      const formattedCategory = item.categoryName
-                        .toLowerCase()
-                        .replace(/&/g, "and")
-                        .replace(/\s+/g, "-");
-                      return formattedCategory === catParam;
-                    })
-                  : // ✅ Case 4: Default (show all)
-                    filteredProducts
+              ? // ✅ Case 2: Only search
+                filteredProducts.filter((item) =>
+                  item.name
+                    .toLowerCase()
+                    .includes(searchParams.get("search").toLowerCase())
+                )
+              : searchParams.get("category")
+              ? // ✅ Case 3: Only category
+                filteredProducts.filter((item) => {
+                  const catParam = searchParams.get("category").toLowerCase();
+                  const formattedCategory = item.categoryName
+                    .toLowerCase()
+                    .replace(/&/g, "and")
+                    .replace(/\s+/g, "-");
+                  return formattedCategory === catParam;
+                })
+              : // ✅ Case 4: Default (show all)
+                filteredProducts
             ).map((item) => {
               const isInWishlist = wishlist.some((w) => w._id === item._id);
               return (
@@ -648,16 +647,16 @@ const ShopPage = () => {
                   {/* ===== Product Image Section ===== */}
                   <div className="h-[200px] flex items-center justify-center relative group">
                     <img
-                      src={`${API_BASE_URL}/${item.mainImage}`}
+                      src={`${URL}/${item.mainImage}`}
                       alt={item.name}
                       className="object-contain w-full h-full"
                       onMouseEnter={(e) => {
                         if (item.gallery && item.gallery.length > 0) {
-                          e.currentTarget.src = `${API_BASE_URL}/${item.gallery[0]}`;
+                          e.currentTarget.src = `${URL}/${item.gallery[0]}`;
                         }
                       }}
                       onMouseLeave={(e) => {
-                        e.currentTarget.src = `${API_BASE_URL}/${item.mainImage}`;
+                        e.currentTarget.src = `${URL}/${item.mainImage}`;
                       }}
                     />
 
@@ -760,7 +759,7 @@ const ShopPage = () => {
             {/* Product Image */}
             {quickViewProduct?.mainImage && (
               <img
-                src={`${API_BASE_URL}/${quickViewProduct.mainImage}`}
+                src={`${URL}/${quickViewProduct.mainImage}`}
                 alt={quickViewProduct?.name || "Product"}
                 className="w-full h-64 object-contain rounded-lg mb-4"
               />
@@ -901,14 +900,14 @@ const ShopPage = () => {
               onClick={() => {
                 let cart = JSON.parse(localStorage.getItem("cart")) || [];
                 const existing = cart.find(
-                  (item) => item._id === quickViewProduct._id,
+                  (item) => item._id === quickViewProduct._id
                 );
 
                 if (existing) {
                   cart = cart.map((item) =>
                     item._id === quickViewProduct._id
                       ? { ...item, quantity: item.quantity + 1 }
-                      : item,
+                      : item
                   );
                 } else {
                   cart.push({ ...quickViewProduct, quantity: 1 });

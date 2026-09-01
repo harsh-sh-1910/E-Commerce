@@ -9,8 +9,8 @@ import {
 } from "../CartUtils/CartUtils";
 
 const CheckoutPage = () => {
-  // const URL = "https://e-commerce-4pcq.onrender.com";
-  const URL = "http://localhost:5000";
+  const URL = "https://e-commerce-4pcq.onrender.com";
+  // const URL = "http://localhost:5000";
 
   const [cartItems, setCartItems] = useState(() => {
     const items = getLocalStorage("cart") || [];

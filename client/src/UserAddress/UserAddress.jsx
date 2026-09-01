@@ -2,8 +2,8 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 
-// const URL = "https://e-commerce-4pcq.onrender.com";
-const URL = "http://localhost:5000";
+const URL = "https://e-commerce-4pcq.onrender.com";
+// const URL = "http://localhost:5000";
 
 const UserAddress = () => {
   const [addresses, setAddresses] = useState([]);

@@ -29,9 +29,10 @@ import {
   removeItemFromCart,
   setCartToStorage,
 } from "../CartUtils/CartUtils";
-import { API_BASE_URL } from "../apiBaseUrl";
 
 const Header = () => {
+  const URL = "https://e-commerce-4pcq.onrender.com";
+  // const URL = "http://localhost:5000";
   const navigate = useNavigate();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [showAll, setShowAll] = useState(false);
@@ -206,8 +207,8 @@ const Header = () => {
       if (searchParams.get("category")) {
         navigate(
           `/shop?search=${encodeURIComponent(
-            search.trim(),
-          )}&category=${searchParams.get("category")}`,
+            search.trim()
+          )}&category=${searchParams.get("category")}`
         );
       } else {
         navigate(`/shop?search=${encodeURIComponent(search.trim())}`);

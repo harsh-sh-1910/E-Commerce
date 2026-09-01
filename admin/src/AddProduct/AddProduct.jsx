@@ -17,8 +17,8 @@ const INITIAL_DATA = {
   ],
 };
 
-const URL = "http://localhost:5000";
-// const URL = "https://e-commerce-4pcq.onrender.com";
+// const URL = "http://localhost:5000";
+const URL = "https://e-commerce-4pcq.onrender.com";
 
 const AddProduct = () => {
   const [productName, setProductName] = useState("");
