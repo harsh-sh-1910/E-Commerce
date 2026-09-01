@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
+import { API_BASE_URL } from "../apiBaseUrl";
 
 const CheckoutFormPage = () => {
-  const URL = "https://e-commerce-4pcq.onrender.com";
-  // const URL = "http://localhost:5000";
+  // const URL = "https://e-commerce-4pcq.onrender.com";
+  const URL = "http://localhost:5000";
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -35,7 +36,7 @@ const CheckoutFormPage = () => {
   useEffect(() => {
     if (product) {
       const updatedCart = cartItems.map((item) =>
-        item.id === product.id ? { ...item, quantity } : item
+        item.id === product.id ? { ...item, quantity } : item,
       );
       localStorage.setItem("cart", JSON.stringify(updatedCart));
     }
@@ -135,8 +136,8 @@ const CheckoutFormPage = () => {
 
           try {
             const orderResponse = await axios.post(
-              `${URL}/order/`,
-              orderDataForDB
+              `${API_BASE_URL}/order/`,
+              orderDataForDB,
             );
             console.log("Order stored:", orderResponse.data);
 
@@ -296,7 +297,7 @@ const CheckoutFormPage = () => {
             <div className="flex items-start space-x-4 mb-6">
               <div className="w-20 h-20 bg-gray-100 rounded-lg overflow-hidden">
                 <img
-                  src={`http://localhost:5000/${product.mainImage}`}
+                  src={`${API_BASE_URL}/${product.mainImage}`}
                   alt={product.name}
                   className="w-full h-full object-contain"
                 />

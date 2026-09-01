@@ -33,15 +33,14 @@ import { IoEye } from "react-icons/io5";
 
 import { FaArrowRightLong } from "react-icons/fa6";
 import { BsCart3 } from "react-icons/bs";
+import { API_BASE_URL } from "../apiBaseUrl";
 
 const MainPage = () => {
-  const URL = "https://e-commerce-4pcq.onrender.com";
-  // const URL = "http://localhost:5000";
   const [deals, setDeals] = useState([]);
   const [categories, setCategories] = useState([]);
   const [products, setProducts] = useState([]);
   const [wishlist, setWishlist] = useState(
-    JSON.parse(localStorage.getItem("wishlist"))
+    JSON.parse(localStorage.getItem("wishlist")),
   );
 
   const [wishlistMsg, setWishlistMsg] = useState("");
@@ -64,13 +63,13 @@ const MainPage = () => {
       _id: product._id,
       title: product.name,
       price: product.pricing?.salePrice,
-      image: `${URL}/${product.mainImage}`,
+      image: `${API_BASE_URL}/${product.mainImage}`,
     };
 
     // Get existing wishlist from localStorage
     const existingWishlist = JSON.parse(localStorage.getItem("wishlist")) || [];
     const itemIndex = existingWishlist.findIndex(
-      (item) => item._id === selectedItem._id
+      (item) => item._id === selectedItem._id,
     );
 
     let isAdded = false;
@@ -202,7 +201,7 @@ const MainPage = () => {
     el.classList.add(
       direction === "forward"
         ? "animate-sweep-forward"
-        : "animate-sweep-reverse"
+        : "animate-sweep-reverse",
     );
   };
   function getRemainingTimeDetailed(endTime) {
@@ -226,8 +225,7 @@ const MainPage = () => {
   useEffect(() => {
     const fetchDeals = async () => {
       try {
-        const startTime = Date.now();
-        const res = await axios.get(`${URL}/deal`);
+        const res = await axios.get(`${API_BASE_URL}/deal`);
 
         const updatedDeals = res.data.map((deal) => {
           const product = deal.productName;
@@ -266,6 +264,8 @@ const MainPage = () => {
         setDealLoading(false);
       } catch (err) {
         console.error("Failed to fetch deals", err);
+      } finally {
+        setDealLoading(false);
       }
     };
 
@@ -289,7 +289,7 @@ const MainPage = () => {
           start: "top 80%", // when top of container hits 80% viewport height
           toggleActions: "play none none none", // only play once
         },
-      }
+      },
     );
   }, []);
   const cardsRef = useRef([]);
@@ -309,7 +309,7 @@ const MainPage = () => {
           start: "top 80%",
           toggleActions: "play none none none", // only play once
         },
-      }
+      },
     );
   }, []);
   useEffect(() => {
@@ -331,7 +331,7 @@ const MainPage = () => {
           }
         });
       },
-      { threshold: 0.2 }
+      { threshold: 0.2 },
     );
 
     if (section) observer.observe(section);
@@ -348,7 +348,7 @@ const MainPage = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const res = await axios.get(`${URL}/category/`);
+        const res = await axios.get(`${API_BASE_URL}/category/`);
         setCategories(res.data);
         // setLoading({ ...loading, category: false });
         // console.log(loading);
@@ -358,6 +358,8 @@ const MainPage = () => {
         console.log(res.data);
       } catch (err) {
         console.log(err);
+      } finally {
+        setCatLoading(false);
       }
     };
 
@@ -366,13 +368,15 @@ const MainPage = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const res = await axios.get(`${URL}/product/`);
+        const res = await axios.get(`${API_BASE_URL}/product/`);
         setProducts(res.data);
-        setLoading({ ...loading, product: false });
+        setLoading((prev) => ({ ...prev, product: false }));
         console.log(loading);
         console.log(res.data);
       } catch (error) {
         console.error("Error fetching products:", error);
+      } finally {
+        setLoading((prev) => ({ ...prev, product: false }));
       }
     };
     fetchProducts();
@@ -603,8 +607,8 @@ const MainPage = () => {
                     className="flex flex-col items-center bg-gray-50 shadow-sm rounded-xl p-6 min-w-[160px] hover:shadow-md transition"
                   >
                     <img
-                      src={`${URL}/${encodeURI(
-                        cat.image.replaceAll("\\", "/")
+                      src={`${API_BASE_URL}/${encodeURI(
+                        cat.image.replaceAll("\\", "/"),
                       )}`}
                       alt={cat.title || cat.name}
                       className="w-50 h-50 object-contain mb-4 hover:scale-110 transition-transform"
@@ -672,16 +676,16 @@ const MainPage = () => {
                         {/* Product Image */}
                         <div className="w-full h-[200px] flex items-center justify-center relative overflow-hidden rounded-lg">
                           <img
-                            src={`${URL}/${item.mainImage}`}
+                            src={`${API_BASE_URL}/${item.mainImage}`}
                             alt={item.name}
                             className="object-contain w-full h-full transition-transform duration-300 group-hover:scale-105"
                             onMouseEnter={(e) => {
                               if (item.gallery && item.gallery.length > 0) {
-                                e.currentTarget.src = `${URL}/${item.gallery[0]}`;
+                                e.currentTarget.src = `${API_BASE_URL}/${item.gallery[0]}`;
                               }
                             }}
                             onMouseLeave={(e) => {
-                              e.currentTarget.src = `${URL}/${item.mainImage}`;
+                              e.currentTarget.src = `${API_BASE_URL}/${item.mainImage}`;
                             }}
                           />
 
@@ -744,7 +748,7 @@ const MainPage = () => {
                           {Array.from({ length: item.rating || 0 }).map(
                             (_, i) => (
                               <FaStar key={i} />
-                            )
+                            ),
                           )}
                         </div>
 
@@ -923,7 +927,7 @@ const MainPage = () => {
                     <div className="p-4">
                       <div className="w-full h-[200px] relative rounded-lg group cursor-pointer">
                         <img
-                          src={`${URL}/${item.image}`}
+                          src={`${API_BASE_URL}/${item.image}`}
                           alt={item.title}
                           className="w-full h-full object-contain rounded-lg"
                         />
@@ -1137,16 +1141,16 @@ const MainPage = () => {
                       {/* Product Image */}
                       <div className="h-[200px] flex items-center justify-center relative overflow-hidden">
                         <img
-                          src={`${URL}/${item.mainImage}`}
+                          src={`${API_BASE_URL}/${item.mainImage}`}
                           alt={item.name}
                           className="object-contain w-full h-full transition-transform duration-300 group-hover:scale-105"
                           onMouseEnter={(e) => {
                             if (item.gallery && item.gallery.length > 0) {
-                              e.currentTarget.src = `${URL}/${item.gallery[0]}`;
+                              e.currentTarget.src = `${API_BASE_URL}/${item.gallery[0]}`;
                             }
                           }}
                           onMouseLeave={(e) => {
-                            e.currentTarget.src = `${URL}/${item.mainImage}`;
+                            e.currentTarget.src = `${API_BASE_URL}/${item.mainImage}`;
                           }}
                         />
 
@@ -1306,16 +1310,16 @@ const MainPage = () => {
                       {/* Product Image */}
                       <div className="h-[200px] flex items-center justify-center relative">
                         <img
-                          src={`${URL}/${item.mainImage}`}
+                          src={`${API_BASE_URL}/${item.mainImage}`}
                           alt={item.name}
                           className="object-contain w-full h-full transition-transform duration-300 group-hover:scale-105"
                           onMouseEnter={(e) => {
                             if (item.gallery && item.gallery.length > 0) {
-                              e.currentTarget.src = `${URL}/${item.gallery[0]}`;
+                              e.currentTarget.src = `${API_BASE_URL}/${item.gallery[0]}`;
                             }
                           }}
                           onMouseLeave={(e) => {
-                            e.currentTarget.src = `${URL}/${item.mainImage}`;
+                            e.currentTarget.src = `${API_BASE_URL}/${item.mainImage}`;
                           }}
                         />
 
@@ -1425,7 +1429,7 @@ const MainPage = () => {
                   {/* Product Image */}
                   {quickViewProduct?.mainImage && (
                     <img
-                      src={`${URL}/${quickViewProduct.mainImage}`}
+                      src={`${API_BASE_URL}/${quickViewProduct.mainImage}`}
                       alt={quickViewProduct?.name || "Product"}
                       className="w-full h-64 object-contain rounded-lg mb-4"
                     />
@@ -1573,14 +1577,14 @@ const MainPage = () => {
                     onClick={() => {
                       let cart = JSON.parse(localStorage.getItem("cart")) || [];
                       const existing = cart.find(
-                        (item) => item._id === quickViewProduct._id
+                        (item) => item._id === quickViewProduct._id,
                       );
 
                       if (existing) {
                         cart = cart.map((item) =>
                           item._id === quickViewProduct._id
                             ? { ...item, quantity: item.quantity + 1 }
-                            : item
+                            : item,
                         );
                       } else {
                         cart.push({ ...quickViewProduct, quantity: 1 });

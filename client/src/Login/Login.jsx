@@ -4,10 +4,11 @@ import { jwtDecode } from "jwt-decode";
 import { useNavigate } from "react-router-dom";
 import { FaEnvelope, FaLock, FaPhone, FaEye, FaEyeSlash } from "react-icons/fa";
 import { GoogleLogin } from "@react-oauth/google";
+import { API_BASE_URL } from "../apiBaseUrl";
 
 const Login = () => {
-  const URL = "https://e-commerce-4pcq.onrender.com";
-  // const URL = "http://localhost:5000";
+  // const URL = "https://e-commerce-4pcq.onrender.com";
+  const URL = "http://localhost:5000";
   const [currentPage, setCurrentPage] = useState("login");
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
@@ -90,7 +91,7 @@ const Login = () => {
           uName: formData.uName,
           password: formData.password,
         };
-        const res = await axios.post(`${URL}/auth/login`, payload, {
+        const res = await axios.post(`${API_BASE_URL}/auth/login`, payload, {
           withCredentials: true,
         });
 
@@ -359,8 +360,8 @@ const Login = () => {
                   {loading
                     ? "Processing..."
                     : currentPage === "login"
-                    ? "Sign In"
-                    : "Create Account"}
+                      ? "Sign In"
+                      : "Create Account"}
                 </button>
                 {/* ✅ Google Login Button */}
                 {currentPage === "login" && (
@@ -388,7 +389,7 @@ const Login = () => {
                   type="button"
                   onClick={() =>
                     setCurrentPage(
-                      currentPage === "login" ? "register" : "login"
+                      currentPage === "login" ? "register" : "login",
                     )
                   }
                   className="text-sm text-blue-600 hover:text-blue-800 font-medium"

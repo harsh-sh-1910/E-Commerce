@@ -17,10 +17,10 @@ import dayjs from "dayjs";
 import { LocationContext } from "../LocationContent/LocationContent";
 import { BsCart3 } from "react-icons/bs";
 import { IoEye } from "react-icons/io5";
+import { API_BASE_URL } from "../apiBaseUrl";
 
 const SingleProduct = () => {
-  const URL = "https://e-commerce-4pcq.onrender.com";
-  // const URL = "http://localhost:5000";
+  // const URL = "https://e-commerce-4pcq.onrender.com";
   const token = localStorage.getItem("accessToken");
 
   const decodedUser = token ? jwtDecode(token) : null;
@@ -74,13 +74,13 @@ const SingleProduct = () => {
       _id: product._id,
       title: product.name,
       price: product.pricing?.salePrice,
-      image: `${URL}/${product.mainImage}`,
+      image: `${API_BASE_URL}/${product.mainImage}`,
     };
 
     // Get existing wishlist from localStorage
     const existingWishlist = JSON.parse(localStorage.getItem("wishlist")) || [];
     const itemIndex = existingWishlist.findIndex(
-      (item) => item._id === selectedItem._id
+      (item) => item._id === selectedItem._id,
     );
 
     let isAdded = false;
@@ -186,7 +186,7 @@ const SingleProduct = () => {
     console.log(payload);
 
     try {
-      const response = await axios.post(`${URL}/review/`, payload);
+      const response = await axios.post(`${API_BASE_URL}/review/`, payload);
 
       if (response.status === 201) {
         const newDate = new Date().toISOString().split("T")[0];
@@ -238,7 +238,7 @@ const SingleProduct = () => {
     const existingIndex = existingCart.findIndex(
       (item) =>
         item._id === selectedItem._id &&
-        item.selectedColor === selectedItem.selectedColor
+        item.selectedColor === selectedItem.selectedColor,
     );
 
     if (existingIndex !== -1) {
@@ -262,13 +262,13 @@ const SingleProduct = () => {
       _id: product._id,
       title: product.name,
       price: product.pricing?.salePrice,
-      image: `${URL}/${product.mainImage}`,
+      image: `${API_BASE_URL}/${product.mainImage}`,
     };
 
     const existingWishlist = JSON.parse(localStorage.getItem("wishlist")) || [];
 
     const itemIndex = existingWishlist.findIndex(
-      (item) => item._id === selectedItem._id
+      (item) => item._id === selectedItem._id,
     );
 
     if (itemIndex === -1) {
@@ -301,7 +301,7 @@ const SingleProduct = () => {
 
   useEffect(() => {
     const getProduct = async () => {
-      const response = await fetch(`${URL}/product/${slug}`);
+      const response = await fetch(`${API_BASE_URL}/product/${slug}`);
       const data = await response.json();
 
       setProduct(data);
@@ -320,7 +320,7 @@ const SingleProduct = () => {
 
     const wishlist = JSON.parse(localStorage.getItem("wishlist")) || [];
     const isAlreadyWishlisted = wishlist.some(
-      (item) => item._id === product?._id
+      (item) => item._id === product?._id,
     );
     setIsWishlisted(isAlreadyWishlisted);
 
@@ -332,12 +332,12 @@ const SingleProduct = () => {
       try {
         if (!product?._id) return;
 
-        const res = await axios.get(`${URL}/review/${product._id}`);
+        const res = await axios.get(`${API_BASE_URL}/review/${product._id}`);
         setReview(res.data);
       } catch (err) {
         console.error(
           "Failed to fetch reviews:",
-          err.response?.data || err.message
+          err.response?.data || err.message,
         );
       }
     };
@@ -347,7 +347,7 @@ const SingleProduct = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const res = await axios.get(`${URL}/product/`);
+        const res = await axios.get(`${API_BASE_URL}/product/`);
         setProducts(res.data);
         console.log(res.data);
       } catch (error) {
@@ -383,7 +383,7 @@ const SingleProduct = () => {
                         onClick={() => setSelectedImage(index)}
                       >
                         <img
-                          src={`${URL}/${thumb}`}
+                          src={`${API_BASE_URL}/${thumb}`}
                           alt={`Product view ${index + 1}`}
                           className="w-full h-full object-contain object-top"
                         />
@@ -403,7 +403,7 @@ const SingleProduct = () => {
                         onClick={() => setSelectedImage(index)}
                       >
                         <img
-                          src={`${URL}/${thumb}`}
+                          src={`${API_BASE_URL}/${thumb}`}
                           alt={`Product view ${index + 1}`}
                           className="w-full h-full object-contain object-top"
                         />
@@ -423,7 +423,7 @@ const SingleProduct = () => {
                 {variation ? (
                   <img
                     ref={imgRef}
-                    src={`${URL}/${
+                    src={`${API_BASE_URL}/${
                       [...productImages, ...variation[0].options[index].images][
                         selectedImage
                       ]
@@ -434,7 +434,7 @@ const SingleProduct = () => {
                 ) : (
                   <img
                     ref={imgRef}
-                    src={`${URL}/${[...productImages][selectedImage]}`}
+                    src={`${API_BASE_URL}/${[...productImages][selectedImage]}`}
                     alt="Main product"
                     className="w-full h-full object-contain"
                   />
@@ -450,7 +450,7 @@ const SingleProduct = () => {
                         : [
                             ...productImages,
                             ...variation[0].options[index].images,
-                          ].length - 1
+                          ].length - 1,
                     )
                   }
                 >
@@ -462,7 +462,7 @@ const SingleProduct = () => {
                     setSelectedImage(
                       selectedImage < productImages.length - 1
                         ? selectedImage + 1
-                        : 0
+                        : 0,
                     )
                   }
                 >
@@ -757,13 +757,13 @@ const SingleProduct = () => {
                 className=" absolute right-0 top-0 w-[50%] h-[80vh] border border-gray-200 rounded-xl overflow-hidden z-50 bg-white shadow-xl hidden lg:block"
                 style={{
                   backgroundImage: variation
-                    ? `url('${URL}/${
+                    ? `url('${API_BASE_URL}/${
                         [
                           ...productImages,
                           ...variation[0].options[index].images,
                         ][selectedImage]
                       }')`
-                    : `url('${URL}/${[...productImages][selectedImage]}')`,
+                    : `url('${API_BASE_URL}/${[...productImages][selectedImage]}')`,
                   backgroundRepeat: "no-repeat",
                   backgroundSize: "200%", // Zoom level
                   backgroundPosition: `${
@@ -863,10 +863,10 @@ const SingleProduct = () => {
                   <div className="space-y-2">
                     {[5, 4, 3, 2, 1].map((stars) => {
                       const count = review.filter(
-                        (r) => r.rating === stars
+                        (r) => r.rating === stars,
                       ).length;
                       const percent = ((count / review.length) * 100).toFixed(
-                        0
+                        0,
                       );
                       return (
                         <div key={stars} className="flex items-center gap-3">
@@ -1026,16 +1026,16 @@ const SingleProduct = () => {
                     {/* Product Image */}
                     <div className="w-full h-[200px] flex items-center justify-center relative overflow-hidden rounded-lg">
                       <img
-                        src={`${URL}/${item.mainImage}`}
+                        src={`${API_BASE_URL}/${item.mainImage}`}
                         alt={item.name}
                         className="object-contain w-full h-full transition-transform duration-300 group-hover:scale-105"
                         onMouseEnter={(e) => {
                           if (item.gallery && item.gallery.length > 0) {
-                            e.currentTarget.src = `${URL}/${item.gallery[0]}`;
+                            e.currentTarget.src = `${API_BASE_URL}/${item.gallery[0]}`;
                           }
                         }}
                         onMouseLeave={(e) => {
-                          e.currentTarget.src = `${URL}/${item.mainImage}`;
+                          e.currentTarget.src = `${API_BASE_URL}/${item.mainImage}`;
                         }}
                       />
                       {/* Hover Icons */}

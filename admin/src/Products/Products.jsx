@@ -1,36 +1,28 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-
-const products = [
-  {
-    id: "P001",
-    name: "Wireless Headphones",
-    category: "Electronics",
-    price: "$99.99",
-    stock: 25,
-    status: "In Stock",
-  },
-  {
-    id: "P002",
-    name: "Running Shoes",
-    category: "Footwear",
-    price: "$79.99",
-    stock: 0,
-    status: "Out of Stock",
-  },
-  {
-    id: "P003",
-    name: "Smartwatch",
-    category: "Accessories",
-    price: "$199.99",
-    stock: 15,
-    status: "In Stock",
-  },
-];
+import axios from "axios";
 
 const Products = () => {
-  const URL = "https://e-commerce-4pcq.onrender.com";
-  // const URL = "http://localhost:5000";
+  // const URL = "https://e-commerce-4pcq.onrender.com";
+  const URL = "http://localhost:5000";
+
+  const [products, setProducts] = useState([]);
+  const [error, setError] = useState("");
+
+  // Fetch products
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const res = await axios.get(`${URL}/product/`);
+        setProducts(res.data);
+        console.log(res.data);
+      } catch (err) {
+        console.error("Error fetching products:", err);
+        setError("Failed to load products. Please try again.");
+      }
+    };
+    fetchProducts();
+  }, []);
 
   return (
     <div className="p-4 w-full">
@@ -43,56 +35,56 @@ const Products = () => {
         </Link>
       </div>
 
-      <div className="mb-4 flex items-center gap-4">
-        <input
-          type="text"
-          placeholder="Search by name"
-          className="border px-4 py-2 rounded-md w-full max-w-xs"
-        />
-        <select className="border px-4 py-2 rounded-md">
-          <option>All Categories</option>
-          <option>Electronics</option>
-          <option>Footwear</option>
-          <option>Accessories</option>
-        </select>
-      </div>
-
-      <div className="overflow-x-auto rounded-lg shadow">
-        <table className="min-w-full bg-white">
-          <thead>
-            <tr className="bg-gray-100 text-left">
-              <th className="py-3 px-6">ID</th>
-              <th className="py-3 px-6">Name</th>
-              <th className="py-3 px-6">Category</th>
-              <th className="py-3 px-6">Price</th>
-              <th className="py-3 px-6">Stock</th>
-              <th className="py-3 px-6">Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {products.map((product) => (
-              <tr key={product.id} className="border-t">
-                <td className="py-3 px-6">{product.id}</td>
-                <td className="py-3 px-6">{product.name}</td>
-                <td className="py-3 px-6">{product.category}</td>
-                <td className="py-3 px-6">{product.price}</td>
-                <td className="py-3 px-6">{product.stock}</td>
-                <td className="py-3 px-6">
-                  <span
-                    className={`px-2 py-1 text-sm rounded-full ${
-                      product.status === "In Stock"
-                        ? "bg-green-100 text-green-600"
-                        : "bg-red-100 text-red-600"
-                    }`}
-                  >
-                    {product.status}
-                  </span>
-                </td>
+      {error ? (
+        <p className="text-red-500 text-center">{error}</p>
+      ) : products.length === 0 ? (
+        <p className="text-gray-600 text-center">No products found.</p>
+      ) : (
+        <div className="overflow-x-auto rounded-lg shadow">
+          <table className="min-w-full bg-white">
+            <thead>
+              <tr className="bg-gray-100 text-left">
+                <th className="py-3 px-6">ID</th>
+                <th className="py-3 px-6">Name</th>
+                <th className="py-3 px-6">Category</th>
+                <th className="py-3 px-6">Actual Price</th>
+                <th className="py-3 px-6">Sale Price</th>
+                <th className="py-3 px-6">Stock</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              {products.map((product) => (
+                <tr key={product._id} className="border-t">
+                  <td className="py-3 px-6">
+                    {product.productId || product._id}
+                  </td>
+                  <td className="py-3 px-6">
+                    {product.name?.length > 40
+                      ? product.name.slice(0, 40) + "..."
+                      : product.name}
+                  </td>
+                  <td className="py-3 px-6">
+                    {product.categoryName || product.category || "N/A"}
+                  </td>
+                  <td className="py-3 px-6 text-red-500">
+                    &#8377;
+                    {product.pricing?.mrp ? `${product.pricing.mrp}` : "0.00"}
+                  </td>
+                  <td className="py-3 px-6 text-teal-600">
+                    &#8377;
+                    {product.pricing?.salePrice
+                      ? `${product.pricing.salePrice}`
+                      : "0.00"}
+                  </td>
+                  <td className="py-3 px-6">
+                    {product.inventory?.stockQty ?? product.stockQty ?? 0}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 };

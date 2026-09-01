@@ -22,12 +22,12 @@ const navItems = [
   { label: "Customers", icon: <FaUsers />, path: "/customers" },
   { label: "Category", icon: <FaBox />, path: "/category" },
   // { label: "Reviews", icon: <FaMessage />, path: "/reviews" },
-  { label: "Settings", icon: <FaCog />, path: "/settings" },
+  // { label: "Settings", icon: <FaCog />, path: "/settings" },
 ];
 
 const Sidebar = () => {
-  const URL = "https://e-commerce-4pcq.onrender.com";
-  // const URL = "http://localhost:5000";
+  // const URL = "https://e-commerce-4pcq.onrender.com";
+  const URL = "http://localhost:5000";
 
   const navigate = useNavigate();
 

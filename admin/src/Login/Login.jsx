@@ -6,8 +6,8 @@ import { FaEnvelope, FaLock, FaPhone, FaEye, FaEyeSlash } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 
 const Login = () => {
-  const URL = "https://e-commerce-4pcq.onrender.com";
-  // const URL = "http://localhost:5000";
+  // const URL = "https://e-commerce-4pcq.onrender.com";
+  const URL = "http://localhost:5000";
 
   const [currentPage, setCurrentPage] = useState("login"); // "login" or "register"
   const [showPassword, setShowPassword] = useState(false);
